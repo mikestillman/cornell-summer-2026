@@ -32,11 +32,17 @@ hilbertSamuelPolynomial(Ideal) := RingElement => (maxR) -> (
   if ring maxR =!= R then error "Ideals must be in the same ring";
   if maxR =!= ideal gens R then error "localizing at other ideal is not implemented yet";
   G := associatedGradedRing (maxR, Variable => getSymbol "v");
-    H := (flattenRing G)#0;
-    K := prune H;
-    L := forgetVarDegrees K;
-    P := hilbertPolynomial(L, Projective => false);
-    return P
+  H := (flattenRing G)#0;
+  K := prune H;
+  L := forgetVarDegrees K;
+  -- t := getSymbol "t";
+  -- n := getSymbol "n";
+  i := getSymbol "i";
+  L1 := (coefficientRing L)[gens ambient L,t];
+  I1 := sub(ideal L, L1);
+  P := hilbertPolynomial(I1, Projective => false);
+  use QQ[n];
+  return sub(P, {i => n-1})
 )
 
 -* Documentation section *-
@@ -60,13 +66,12 @@ Key
 Headline
   Compute the Hilbert-Samuel polynomial of a module
 Usage
-  hilbertSamuelPolynomial(M,maxR)
+  hilbertSamuelPolynomial(maxR)
 Inputs
-  M:Module
   maxR:Ideal
 Outputs
   :RingElement
-    in the ring $\mathbb{Q}[t]$
+    in the ring $\mathbb{Q}[n]$
 Description
   Text
   Example
@@ -99,12 +104,22 @@ I = ideal(y^2-x^3)
 R = S/I
 maxR = ideal(x,y)
 hilbertSamuelPolynomial(maxR)
-ideal gens R
-
 
 kk = ZZ/32003
-R = kk[x,y,z,w]
+S = kk[x,y,z,w]
 I = ideal(z^3-y*w,y*z-x*w,y^3-x*z)
+R = S/I
 maxR = ideal(x,y,z,w)
-hilbertSamuelPolynomial(I,maxR)
+hilbertSamuelPolynomial(maxR)
 
+kk = ZZ/32003
+R = kk[x]
+maxR = ideal(x)
+hilbertSamuelPolynomial(maxR)
+
+kk = ZZ/32003
+S = kk[x,y,z]
+I = ideal(z^2-x*y)
+R = S/I
+maxR = ideal(x,y,z)
+hilbertSamuelPolynomial(maxR)
