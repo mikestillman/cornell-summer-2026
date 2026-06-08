@@ -117,7 +117,8 @@ TEST ///
   -- assert (H == n)
 ///
 
-TEST ///
+"TEST"
+///
   kk = ZZ/32003
   S = kk[x,y,z,w]
   I = ideal(z^3-y*w,y*z-x*w,y^3-x*z)
