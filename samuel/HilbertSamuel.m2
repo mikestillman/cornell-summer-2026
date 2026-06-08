@@ -15,6 +15,7 @@ newPackage(
 export {"hilbertSamuelPolynomial"}
 
 -* Code section *-
+HilbRing = QQ(monoid[getSymbol "n"]);
 
 forgetVarDegrees = (R1) -> (
   KK := coefficientRing R1;
@@ -28,6 +29,10 @@ forgetVarDegrees = (R1) -> (
 
 hilbertSamuelPolynomial = method()
 hilbertSamuelPolynomial(Ideal) := RingElement => (maxR) -> (
+  hilbertSamuelPolynomial(maxR,HilbRing_0)
+)
+
+hilbertSamuelPolynomial(Ideal,RingElement) := RingElement => (maxR,t) -> (
   R := ring maxR;
   if ring maxR =!= R then error "Ideals must be in the same ring";
   if maxR =!= ideal gens R then error "localizing at other ideal is not implemented yet";
@@ -35,15 +40,13 @@ hilbertSamuelPolynomial(Ideal) := RingElement => (maxR) -> (
   H := (flattenRing G)#0;
   K := prune H;
   L := forgetVarDegrees K;
-  -- t := getSymbol "t";
-  -- n := getSymbol "n";
-  i := getSymbol "i";
-  L1 := (coefficientRing L)[gens ambient L,t];
+  L1 := (coefficientRing L)[gens ambient L,getSymbol "t"];
   I1 := sub(ideal L, L1);
   P := hilbertPolynomial(I1, Projective => false);
-  use QQ[n];
-  return sub(P, {i => n-1})
+  -- return P -- gives the polynomial for length(R/m^{n+1}) 
+  return sub(P, {(ring P)_0 => t - 1}) -- gives the polynomial for length(R/m^n)
 )
+
 
 -* Documentation section *-
 beginDocumentation()
@@ -56,7 +59,12 @@ Headline
 Description
   Text
   Example
-    2+2
+    kk = ZZ/32003;
+    S = kk[x,y];
+    I = ideal(y^2-x^3);
+    R = S/I;
+    maxR = ideal(x,y)
+    H = hilbertSamuelPolynomial(maxR)
 SeeAlso
 ///
 
@@ -75,15 +83,64 @@ Outputs
 Description
   Text
   Example
-    2+2
+    kk = ZZ/32003;
+    S = kk[x,y];
+    I = ideal(y^2-x^3);
+    R = S/I;
+    maxR = ideal(x,y)
+    H = hilbertSamuelPolynomial(maxR)
 SeeAlso
 ///
 
 -* Test section *-
 TEST /// -* [insert short title for this test] *-
-  assert (2+2 == 4)
--- test code and assertions here
--- may have as many TEST sections as needed
+  kk = ZZ/32003
+  S = kk[x,y]
+  I = ideal(y^2-x^3)
+  R = S/I
+  maxR = ideal(x,y)
+  H = hilbertSamuelPolynomial(maxR)
+  -- assert (H == 2*n - 1)
+  t = (ring H)_0
+  assert (H == 2*t - 1)
+///
+
+TEST ///
+  kk = ZZ/32003
+  R = kk[x]
+  maxR = ideal(x)
+  hilbertSamuelPolynomial(maxR)
+  QQ[a]
+  H = hilbertSamuelPolynomial(maxR,a)
+  assert (H == a)
+  -- H = hilbertSamuelPolynomial(maxR)
+  -- assert (H == n)
+///
+
+TEST ///
+  kk = ZZ/32003
+  S = kk[x,y,z,w]
+  I = ideal(z^3-y*w,y*z-x*w,y^3-x*z)
+  R = S/I
+  maxR = ideal(x,y,z,w)
+  H = hilbertSamuelPolynomial(maxR)
+  
+  A = S_maxR
+  IA = sub (I, A)
+  J = ideal(x+w) + IA
+  decompose J
+  minimalPrimes J
+  
+  dim R
+  length(R^1/maxR^3) 
+  Q = ideal(w+x)
+  decompose Q
+  netList oo
+
+
+  transpose gens gb I
+  dim I
+  decompose I
 ///
 
 end--
@@ -98,12 +155,7 @@ restart
 installPackage "HilbertSamuel"
 viewHelp "HilbertSamuel"
 
-kk = ZZ/32003
-S = kk[x,y]
-I = ideal(y^2-x^3)
-R = S/I
-maxR = ideal(x,y)
-hilbertSamuelPolynomial(maxR)
+
 
 kk = ZZ/32003
 S = kk[x,y,z,w]
@@ -112,10 +164,20 @@ R = S/I
 maxR = ideal(x,y,z,w)
 hilbertSamuelPolynomial(maxR)
 
-kk = ZZ/32003
-R = kk[x]
-maxR = ideal(x)
-hilbertSamuelPolynomial(maxR)
+R^1/maxR^3
+basis (R^1/maxR^3)
+numcols oo
+
+methods LocalRings
+use S
+A = localRing(S,ideal(x,y,z,w))
+max A
+A^1/(max A)^3
+basis oo
+dim A
+
+A = localRing(S,ideal(x,y,z))
+dim A
 
 kk = ZZ/32003
 S = kk[x,y,z]
@@ -123,3 +185,14 @@ I = ideal(z^2-x*y)
 R = S/I
 maxR = ideal(x,y,z)
 hilbertSamuelPolynomial(maxR)
+
+TODO:
+
+1. add more tests.
+2. add a length function.
+3. add a function to determine if an ideal is a parameter.
+4. add a function to compute length of module over polynomial ring ZZ.
+5. make hilbertSamuelPolynomial to work for other maximal ideals.
+
+
+
