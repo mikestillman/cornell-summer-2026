@@ -27,6 +27,13 @@ forgetVarDegrees = (R1) -> (
   return (S2 / sub(I1, S2))
 )
 
+--- given a graded ring return the given ring with standard grading
+forgetVarDegrees2 = (R1) -> (
+  stdGrading := {(numgens R1): 1};
+  newAmbient := (coefficientRing R1)[gens R1, Degrees => stdGrading];
+  return (newAmbient/sub(ideal R1, newAmbient))
+)
+
 hilbertSamuelPolynomial = method()
 hilbertSamuelPolynomial(Ideal) := RingElement => (maxR) -> (
   hilbertSamuelPolynomial(maxR,HilbRing_0)
