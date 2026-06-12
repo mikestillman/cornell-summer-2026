@@ -227,6 +227,10 @@ TODO:
 1. add more tests.
     added two already.
     Will: add more test.
+    - Notes for additional tests to write
+    - more tests with multiple asserts/ multiple calls to hilbert samuel in one test block
+    - tests to make sure that failing cases / non-supported cases actuallyu throw an error
+
 2. add a length function.
     newlength = M -> (
       -- R = ring M;
@@ -234,6 +238,12 @@ TODO:
     )
 3. add a function to determine if an ideal is a parameter ideal.
     Use isPrimary?
+    - Here is some more detail
+    - Exercise: primary in a localisation if is primary and contained in prime that you're localising at
+    -  Implementation for is Primary:
+    - given an ideal in a local ring, 1) sub the ideal into the ambient ring 2) check if contained in prime being localised at 3) use the already implemented function isPrimary for non-local rings
+
+
 4. add a function to compute length of module over polynomial ring ZZ.
 5. make hilbertSamuelPolynomial to work for other maximal ideals.
     S = kk[x_1..x_n]
