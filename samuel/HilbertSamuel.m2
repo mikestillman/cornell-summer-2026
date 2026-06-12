@@ -225,10 +225,35 @@ dim A
 TODO:
 
 1. add more tests.
+    added two already.
+    Will: add more test.
 2. add a length function.
-3. add a function to determine if an ideal is a parameter.
+    newlength = M -> (
+      -- R = ring M;
+      return numcols basis M
+    )
+3. add a function to determine if an ideal is a parameter ideal.
+    Use isPrimary?
 4. add a function to compute length of module over polynomial ring ZZ.
 5. make hilbertSamuelPolynomial to work for other maximal ideals.
+    S = kk[x_1..x_n]
+    I = ideal(f_1..f_r)
+    R = S/I
+    maxR = (x_1-a_1,...,x_n-a_n)
+    hilbertSamuelPolynomial(maxR) should be the same as the following
+    I = ideal(f_1(x_1+a_1,...,x_n+a_n),...,f_r(x_1+a_1,...,x_n+a_n))
+    R = S/I
+    maxR = ideal(x_1,...,x_n)
 
+
+
+
+Questions for Mike:
+1. Any idea to get start on compute hilbertSamuelPolynomial for general parameter ideals?
+    length(R/m^n)=length(R_m/m^n)
+    length(R/q^n)=length(R/q)+length(q/q^2)+...+length(q^{n-1}/q^n)
+    H(gr_q(R),i)=dim q^i/q^{i+1}=length(q^i/q^{i+1})?
+2. How does M2 compute quotient rings?
+3. Is there anything stopping it from working in the local ring case?
 
 
