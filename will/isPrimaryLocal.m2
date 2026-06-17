@@ -14,15 +14,7 @@ check that it's contained in the primary ideal that we've localised at
 check that the lifted ideal is primary in the ambient ring
 *- 
 
-needsPackage "LocalRings";
-R = ZZ/32003[a..d]
-M = ideal(a,b,c,d)
-RM = R_M
--- The following are some primary ideals
-I1 = m = max RM
-I2 = m^2
-I3 = ideal(a)
-I4 = ideal(a*b) -- should not be primary
+
 
 radical I2
 
@@ -43,7 +35,17 @@ isPrimaryLocalRing(Ideal) := RingElement => (I) -> (
 	-- the lifted ideal is always contained in the lifted maximal ideal
 )
 
-isPrimaryLocaRing I1
-isPrimaryLocaRing I2
-isPrimaryLocaRing I3
-isPrimaryLocaRing I4
+needsPackage "LocalRings";
+R = ZZ/32003[a..d]
+M = ideal(a,b,c,d)
+RM = R_M
+-- The following are some primary ideals
+I1 = m = max RM
+I2 = m^2
+I3 = ideal(a)
+I4 = ideal(a*b) -- should not be primary
+
+isPrimaryLocalRing I1 
+isPrimaryLocalRing I2
+isPrimaryLocalRing I3
+isPrimaryLocalRing I4 -- this last one should be false
