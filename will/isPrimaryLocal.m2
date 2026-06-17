@@ -22,6 +22,7 @@ RM = R_M
 I1 = m = max RM
 I2 = m^2
 I3 = ideal(a)
+I4 = ideal(a*b) -- should not be primary
 
 radical I2
 
@@ -34,11 +35,15 @@ isSubset(liftUp(I2), M)
 -- here's a procedure
 isPrimaryLocalRing = method();
 isPrimaryLocalRing(Ideal) := RingElement => (I) -> (
-	-- add some error handling here
-	-- check if the ideal is the ideal of a LocalRing
+	if not instance(RM, LocalRing) then error "Ambient ring of I is not a LocalRing";
 	liftedIdeal := liftUp(I);
 	localisedPrime = liftUp max ring I;
 	return (isPrimary liftedIdeal) and (isSubset(liftedIdeal, localisedPrime))
 	-- This last check might be superfluous, it might be that 
 	-- the lifted ideal is always contained in the lifted maximal ideal
 )
+
+isPrimaryLocaRing I1
+isPrimaryLocaRing I2
+isPrimaryLocaRing I3
+isPrimaryLocaRing I4
