@@ -230,6 +230,7 @@ TODO:
     - Notes for additional tests to write
     - more tests with multiple asserts/ multiple calls to hilbert samuel in one test block
     - tests to make sure that failing cases / non-supported cases actuallyu throw an error
+    - think about interface design.
 
 2. add a length function.
     newlength = M -> (
@@ -240,11 +241,15 @@ TODO:
     Use isPrimary?
     - Here is some more detail
     - Exercise: primary in a localisation if is primary and contained in prime that you're localising at
-    -  Implementation for is Primary:
-    - given an ideal in a local ring, 1) sub the ideal into the ambient ring 2) check if contained in prime being localised at 3) use the already implemented function isPrimary for non-local rings
-
+      might be solved in the notes.
+    - Implementation for is Primary:
+    - given an ideal in a local ring, 
+      1) sub the ideal into the ambient ring 
+      2) check if contained in prime being localised at 
+      3) use the already implemented function isPrimary for non-local rings
 
 4. add a function to compute length of module over polynomial ring ZZ.
+
 5. make hilbertSamuelPolynomial to work for other maximal ideals.
     S = kk[x_1..x_n]
     I = ideal(f_1..f_r)
@@ -255,8 +260,7 @@ TODO:
     R = S/I
     maxR = ideal(x_1,...,x_n)
 
-
-
+    kk[x_1..x_n] -> kk[y_1..y_n] by x_i -> y_i + a_i
 
 Questions for Mike:
 1. Any idea to get start on compute hilbertSamuelPolynomial for general parameter ideals?
@@ -265,5 +269,6 @@ Questions for Mike:
     H(gr_q(R),i)=dim q^i/q^{i+1}=length(q^i/q^{i+1})?
 2. How does M2 compute quotient rings?
 3. Is there anything stopping it from working in the local ring case?
+4. Overleaf?
 
 

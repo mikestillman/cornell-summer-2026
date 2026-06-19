@@ -1,0 +1,739 @@
+\documentclass[a4paper,10pt]{article}
+\usepackage{subfiles}
+\usepackage[margin=1in]{geometry}
+\usepackage{adjustbox}
+\usepackage{amsfonts}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{amsthm}
+\usepackage{calc}
+\usepackage{enumitem}
+\usepackage{eucal}
+\usepackage{fancyhdr}
+\usepackage{mathrsfs}
+\usepackage{mathtools}
+\usepackage{nameref}
+\usepackage{parskip}
+\usepackage{physics}
+\usepackage{setspace}
+\usepackage{tabularx}
+\usepackage[most]{tcolorbox}
+\usepackage{tikz}
+\usepackage{tikz-cd}
+\usepackage{titlesec}
+\usepackage{verbatim}
+\usepackage{xcolor}
+\usepackage{quiver}
+\usepackage{imakeidx}
+\usepackage{hyperref}
+
+
+\usetikzlibrary{calc}
+\usetikzlibrary{decorations.pathmorphing}
+\usetikzlibrary{spath3}
+
+% A TikZ style for curved arrows of a fixed height, due to AndreC.
+\tikzset{curve/.style={settings={#1},to path={(\tikztostart)
+    .. controls ($(\tikztostart)!\pv{pos}!(\tikztotarget)!\pv{height}!270:(\tikztotarget)$)
+    and ($(\tikztostart)!1-\pv{pos}!(\tikztotarget)!\pv{height}!270:(\tikztotarget)$)
+    .. (\tikztotarget)\tikztonodes}},
+    settings/.code={\tikzset{quiver/.cd,#1}
+        \def\pv##1{\pgfkeysvalueof{/tikz/quiver/##1}}},
+    quiver/.cd,pos/.initial=0.35,height/.initial=0}
+
+% A TikZ style for shortening paths without the poor behavior of `shorten <' and `shorten >'.
+\tikzset{between/.style n args={2}{/tikz/execute at end to={
+    \tikzset{spath/split at keep middle={current}{#1}{#2}}
+}}}
+
+% TikZ arrowhead/tail styles.
+\tikzset{tail reversed/.code={\pgfsetarrowsstart{tikzcd to}}}
+\tikzset{2tail/.code={\pgfsetarrowsstart{Implies[reversed]}}}
+\tikzset{2tail reversed/.code={\pgfsetarrowsstart{Implies}}}
+% TikZ arrow styles.
+\tikzset{no body/.style={/tikz/dash pattern=on 0 off 1mm}}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\hypersetup{
+    colorlinks,
+    citecolor=black,
+    filecolor=black,
+    linkcolor=blue!60!black,
+    urlcolor=blue!60!black
+}
+\makeindex[title=Index]
+\makeindex[name=thm,title=Index of Theorems]
+
+
+\titleformat{name=\section}
+{\normalfont\Large\bfseries}
+{}
+{0pt}
+{}
+
+\tcbuselibrary{theorems}
+\NewTcbTheorem[number within=section]{theorem}{Theorem}{
+colback=white,
+colframe=gray!30,
+fonttitle=\bfseries,
+coltitle=black,
+colbacktitle=gray!30,
+toptitle=1mm,
+bottomtitle=1mm,
+parbox=false}{tcb}
+\NewTcbTheorem[use counter from=theorem]{lemma}{Lemma}{
+colback=white,
+colframe=gray!30,
+fonttitle=\bfseries,
+coltitle=black,
+colbacktitle=gray!30,
+toptitle=1mm,
+bottomtitle=1mm,
+parbox=false}{tcb}
+\NewTcbTheorem[use counter from=theorem]{exercise}{Exercise}{
+colback=white,
+colframe=gray!30,
+fonttitle=\bfseries,
+coltitle=black,
+colbacktitle=gray!30,
+toptitle=1mm,
+bottomtitle=1mm,
+parbox=false}{tcb}
+\NewTcbTheorem[use counter from=theorem]{corollary}{Corollary}{
+colback=white,
+colframe=gray!30,
+fonttitle=\bfseries,
+coltitle=black,
+colbacktitle=gray!30,
+toptitle=1mm,
+bottomtitle=1mm,
+parbox=false}{tcb}
+\NewTcbTheorem[use counter from=theorem]{proposition}{Proposition}{
+colback=white,
+colframe=gray!30,
+fonttitle=\bfseries,
+coltitle=black,
+colbacktitle=gray!30,
+toptitle=1mm,
+bottomtitle=1mm,
+parbox=false}{tcb}
+
+\theoremstyle{definition}
+\newtheorem{remark}[tcb@cnt@theorem]{Remark}
+\newtheorem{example}[tcb@cnt@theorem]{Example}
+\newtheorem{warning}[tcb@cnt@theorem]{Warning}
+\newtheorem{notation}[tcb@cnt@theorem]{Notation}
+\newtheorem{definition}[tcb@cnt@theorem]{Definition}
+\newtheorem{motivation}[tcb@cnt@theorem]{Motivation}
+\newtheorem{application}[tcb@cnt@theorem]{Application}
+\newtheorem{construction}[tcb@cnt@theorem]{Construction}
+
+\newcommand\aref[2][blue!60!black]{\begingroup\hypersetup{linkcolor=#1}\hyperlink{#2}{#2}\endgroup}
+\newcommand\bref[3][blue!60!black]{\begingroup\hypersetup{linkcolor=#1}\hyperlink{#2}{#3}\endgroup}
+\newcommand\lref[2][blue!60!black]{lemma \ref{tcb:#2}}
+\newcommand\tref[2][blue!60!black]{theorem \ref{tcb:#2}}
+\newcommand\eref[2][blue!60!black]{exercise \ref{tcb:#2}}
+\newcommand\cref[2][blue!60!black]{corollary \ref{tcb:#2}}
+\newcommand\pref[2][blue!60!black]{proposition \ref{tcb:#2}}
+\newcommand\Lref[2][blue!60!black]{Lemma \ref{tcb:#2}}
+\newcommand\Tref[2][blue!60!black]{Theorem \ref{tcb:#2}}
+\newcommand\Eref[2][blue!60!black]{Exercise \ref{tcb:#2}}
+\newcommand\Cref[2][blue!60!black]{Corollary \ref{tcb:#2}}
+\newcommand\Pref[2][blue!60!black]{Proposition \ref{tcb:#2}}
+
+\makeatletter
+\newcommand*{\shortenfences}[3]{%
+  % #1: left fence without \left
+  % #2: formula inside the fences
+  % #3: right fence without \right
+  \mathpalette{\@shortenfences{#1}{#3}}{#2}%
+}
+\newdimen\sf@dimen
+\newcommand*{\@shortenfences}[4]{%
+  % #1: left fence
+  % #2: right fence
+  % #3: math style
+  % #4: formula
+  \sbox0{$#3#4\m@th$}%
+  \sbox2{$#3\vcenter{}$}%
+  % \dimen0: height above math axis
+  \dimen0=\dimexpr\ht0 - \ht2\relax
+  \ifdim\dimen0<\z@
+    \dimen0=\z@
+  \fi
+  % \dimen2: depth below math axis
+  \dimen2=\dimexpr\ht2 + \dp0\relax
+  \ifdim\dimen2<\z@
+    \dimen2=\z@
+  \fi
+  % \sf@dimen: amount for lowering the inner formula
+  % to center the inner formula.
+  \sf@dimen=\dimexpr(\dimen0 - \dimen2)/2\relax
+  % lower the inner formula and raise the outer formula with
+  % the fences to keep the math axis.
+  \raisebox{\sf@dimen}{%
+    $#3\left#1\raisebox{-\sf@dimen}{\box0}\right#2\m@th$%
+  }
+}
+\makeatother
+
+\newcommand\eq{{\operatorname{eq}}}
+\newcommand\GL{{\operatorname{GL}}}
+\newcommand\Gr{{\operatorname{Gr}}}
+\newcommand\id{{\operatorname{id}}}
+\newcommand\pr{{\operatorname{pr}}}
+\newcommand\pt{{\operatorname{pt}}}
+\newcommand\sk{{\operatorname{sk}}}
+\newcommand\SL{{\operatorname{SL}}}
+\newcommand\cod{{\operatorname{cod}}}
+\newcommand\dom{{\operatorname{dom}}}
+\newcommand\fin{{\operatorname{fin}}}
+\newcommand\Fun{{\operatorname{Fun}}}
+\newcommand\Gal{{\operatorname{Gal}}}
+\newcommand\Hom{{\operatorname{Hom}}}
+\newcommand\lex{{\operatorname{lex}}}
+\newcommand\Map{{\operatorname{Map}}}
+\newcommand\Mat{{\operatorname{Mat}}}
+\newcommand\Mor{{\operatorname{Mor}}}
+\newcommand\qis{{\operatorname{qis}}}
+\newcommand\red{{\operatorname{red}}}
+\newcommand\rev{{\operatorname{rev}}}
+\newcommand\cart{{\operatorname{cart}}}
+\newcommand\coeq{{\operatorname{coeq}}}
+\newcommand\Flag{{\operatorname{Flag}}}
+\newcommand\Isom{{\operatorname{Isom}}}
+\newcommand\Bilin{{\operatorname{Bilin}}}
+\newcommand\canon{{\operatorname{canon}}}
+\newcommand\revlex{{\operatorname{revlex}}}
+
+
+\newcommand\Bl{\operatorname{Bl}}
+\newcommand\Cl{\operatorname{Cl}}
+\newcommand\gr{\operatorname{gr}}
+\newcommand\im{\operatorname{im}}
+\newcommand\pd{\operatorname{pd}}
+\newcommand\adj{\operatorname{adj}}
+\newcommand\Ann{\operatorname{Ann}}
+\newcommand\Ass{\operatorname{Ass}}
+\newcommand\Aut{\operatorname{Aut}}
+\newcommand\Der{\operatorname{Der}}
+\newcommand\Div{\operatorname{div}}
+\newcommand\DIV{\operatorname{Div}}
+\newcommand\Eig{\operatorname{Eig}}
+\newcommand\End{\operatorname{End}}
+\newcommand\Ext{\operatorname{Ext}}
+\newcommand\Fix{\operatorname{Fix}}
+\newcommand\kod{\operatorname{kod}}
+\newcommand\Kom{\operatorname{Kom}}
+\newcommand\lcm{\operatorname{lcm}}
+\newcommand\Nil{\operatorname{Nil}}
+\newcommand\Orb{\operatorname{Orb}}
+\newcommand\Pic{\operatorname{Pic}}
+\newcommand\rad{\operatorname{rad}}
+\newcommand\rem{\operatorname{rem}}
+\newcommand\Syl{\operatorname{Syl}}
+\newcommand\Sym{\operatorname{Sym}}
+\newcommand\syz{\operatorname{syz}}
+\newcommand\Tor{\operatorname{Tor}}
+\newcommand\Bord{\operatorname{Bord}}
+\newcommand\CaCl{\operatorname{CaCl}}
+\newcommand\coim{\operatorname{coim}}
+\newcommand\cone{\operatorname{cone}}
+\newcommand\Curl{\operatorname{curl}}
+\newcommand\Disc{\operatorname{Disc}}
+\newcommand\Frac{\operatorname{Frac}}
+\newcommand\Grad{\operatorname{grad}}
+\newcommand\mult{\operatorname{mult}}
+\newcommand\Proj{\operatorname{Proj}}
+\newcommand\sign{\operatorname{sign}}
+\newcommand\Spec{\operatorname{Spec}}
+\newcommand\Stab{\operatorname{Stab}}
+\newcommand\Supp{\operatorname{Supp}}
+\newcommand\Triv{\operatorname{Triv}}
+\newcommand\coker{\operatorname{coker}}
+\newcommand\codim{\operatorname{codim}}
+\newcommand\colim{\operatorname{colim}}
+\newcommand\depth{\operatorname{depth}}
+\newcommand\graph{\operatorname{graph}}
+\newcommand\MSpec{\operatorname{MSpec}}
+\newcommand\Slice{\operatorname{Slice}}
+\newcommand\OrBord{\operatorname{OrBord}}
+\newcommand\height{\operatorname{height}}
+
+\newcommand\NL{\mathbb{NL}}
+\newcommand\trdeg{\operatorname{tr.deg}}
+\newcommand\sext{{\operatorname{\mathscr{E}\hspace{-1pt}xt}}}
+\newcommand\shom{{\operatorname{\mathscr{H}\hspace{-1.5pt}om}}}
+\newcommand\tcap{\mathbin
+{\mathmakebox[\widthof{$\cap$}][c]{\top}\mathmakebox[0pt][r]{\cap}}}
+\newcommand\pp[2][]{\frac{\partial#1}{\partial#2}}
+\newcommand\ppn[3][]{\frac{\partial^{#3}#1}{\partial#2^{#3}}}
+\newcommand\ppe[3][]{{\mathmakebox[\widthof{$\displaystyle\frac{\partial#1}
+{\partial#2}|$}][r]{\left.\frac{\partial#1}{\partial#2}\right|}}_{#3}}
+\newcommand\ppne[4][]{{\mathmakebox[\widthof{$\displaystyle\frac{\partial#1^{#3}}
+{\partial#2^{#3}}|$}][r]{\left.\frac{\partial#1}{\partial#2}\right|}}_{#4}}
+\newcommand\tpp[2][]{\partial#1/\partial#2}
+\newcommand\dpp[2][]{\displaystyle\frac{\partial#1}{\partial#2}}
+
+\renewcommand\op{{\operatorname{op}}}
+
+\DeclareFontFamily{U}{mathx}{}
+\DeclareFontShape{U}{mathx}{m}{n}{<-> mathx10}{}
+\DeclareSymbolFont{mathx}{U}{mathx}{m}{n}
+\DeclareMathAccent{\widecheck}{0}{mathx}{"71}
+
+\DeclareSymbolFont{bbold}{U}{bbold}{m}{n}
+\DeclareSymbolFontAlphabet{\mathbbold}{bbold}
+\DeclareMathSymbol{\bbomega}{\mathord}{bbold}{"7F}
+\DeclareMathSymbol{\bbk}{\mathord}{bbold}{"6B}
+\newcommand\ncat[1]{\mathbbold{#1}}
+
+\newcommand\di[1]{\index{#1}\textbf{\textcolor{orange}{#1}}}
+\newcommand\dni[1]{\textbf{\textcolor{orange}{#1}}}
+\newcommand\cbox[1]{\colorbox{gray!20}{#1}}
+\newcommand\dbox[1]{\colorbox{blue!10}{#1}}
+\newcommand\ebox[1]{\colorbox{orange!10}{#1}}
+\newcommand\cbl[1]{\colorbox{red!10}{#1}}
+\newcommand\inj{\mathrel{\hookrightarrow}}
+\newcommand\surj{\mathrel{\twoheadrightarrow}}
+\newcommand\ol[1]{\overline{#1}}
+\newcommand\ul[1]{\underline{#1}}
+\newcommand\wh[1]{\widehat{#1}}
+\newcommand\wt[1]{\widetilde{#1}}
+\newcommand\wc[1]{\widecheck{#1}}
+\renewcommand\leq{\leqslant}
+\renewcommand\geq{\geqslant}
+\renewcommand\mod[1]{\ (\mathrm{mod}\ #1)}
+\renewcommand\preceq{\preccurlyeq}
+\renewcommand\succeq{\succcurlyeq}
+\newcommand\cat[1]{{\textsf{#1}}}
+\newcommand\lsub[2]{\vphantom{#2}_{#1}{#2}}
+\newcommand\lsup[2]{\vphantom{#2}^{#1}{#2}}
+
+\newcommand\circled[1]{\tikz[baseline=(char.base)]{
+\node[shape=circle,draw,inner sep=2pt](char){#1};}}
+
+\newcommand\pagebreaktoggle{}
+\newcommand\nonmath[1]{}
+
+\newcommand\sproj[1]{[Stacks Project \href{https://stacks.math.columbia.edu/tag/#1}{#1}]}
+\newcommand\krd[1]{[Kerodon \href{https://kerodon.net/tag/#1}{#1}]}
+\newcommand\mbook[1]{[Moduli Book \href{https://book.themoduli.space/tag/#1}{#1}]}
+\newcommand\mse[1]{[MSE \href{https://math.stackexchange.com/questions/#1}{#1}]}
+\newcommand\mo[1]{[MO \href{https://mathoverflow.net/questions/#1}{#1}]}
+\newcommand\arxiv[1]{[arXiv \href{https://arxiv.org/abs/math/#1}{#1}]}
+
+\raggedbottom
+\pagestyle{fancy}
+\lhead{\bref{toc}{ToC}\quad\bref{index}{Index}}
+\chead{}
+\rhead{}
+\cfoot{\thepage}
+
+\setlength{\headheight}{15pt}
+\addtolength{\topmargin}{-3pt}
+\setlength{\parindent}{16pt}
+\setlength{\parskip}{6pt}
+\makeatletter
+\g@addto@macro\normalsize{%
+  \setlength\abovedisplayskip{6pt}
+  \setlength\belowdisplayskip{6pt}
+  \setlength\abovedisplayshortskip{3pt}
+  \setlength\belowdisplayshortskip{3pt}
+}
+\makeatother
+\setlist{listparindent=\parindent,parsep=\parsep,itemsep=0pt,topsep=0pt,partopsep=0pt}
+\renewcommand\arraystretch{1}
+\renewcommand\baselinestretch{1.2}
+\allowdisplaybreaks
+\emergencystretch 3em
+\begin{document}
+\def\numberline#1{}
+\hypertarget{toc}{}
+\tableofcontents
+\pagebreak
+
+\section{Primary Ideal}
+\begin{notation}
+All rings will be unital and commutative.
+\end{notation}
+
+\begin{definition}
+Let $R$ be a ring. 
+An ideal $\mathfrak{q}\subseteq R$ is a \di{primary ideal} if 
+for any $a,b\in R$ with $ab\in\mathfrak{q}$, either $a\in\mathfrak{q}$ 
+or $b^n\in\mathfrak{q}$ for some $n\in\mathbb{Z}_{\geq1}$.
+Equivalently, $\mathfrak{q}\subseteq R$ is a primary ideal of 
+$R/\mathfrak{q}$ is a ring where every zero-divisor is nilpotent.
+
+The radical of a primary ideal is necessarily a prime ideal.
+If $\mathfrak{q}\subseteq R$ is a primary ideal with radical $\mathfrak{p}$, 
+then we say $\mathfrak{q}$ is a \dni{$\mathfrak{p}$-primary ideal}.
+\end{definition}
+
+\begin{remark}
+Radical being prime does not implies the ideal is primary.
+For example, consider the ideal $I=(x^2,xy)\subseteq k[x,y]$ for some field $k$.
+Then $\sqrt{I}=(x)$ is prime, but $I$ is not primary since 
+$xy\in I$ but $x\not\in I$ and $y^n\not\in I$ for any $n\in\mathbb{Z}_{\geq1}$.
+Another way to see this is that $xy=0$ in $R/I$,
+so $y$ is a zero divisor but it is not nilpotent.
+
+However, radical being maximal is a sufficient condition 
+for an ideal to be primary:
+\end{remark}
+
+\begin{lemma}{}{lem-radical-is-maximal}
+Let $R$ be a ring.
+If $\mathfrak{q}\subseteq R$ is an ideal such that 
+$\mathfrak{m}:=\sqrt{\mathfrak{q}}$ is a maximal ideal,
+then $\mathfrak{q}$ is a $\mathfrak{m}$-primary ideal.
+\end{lemma}
+\begin{proof}
+It suffices to show that every zero-divisor in $R/\mathfrak{q}$ is nilpotent.
+Prime ideals of $R/\mathfrak{q}$ is in bijection with 
+prime ideals of $R$ containing $\mathfrak{q}$.
+Since radical of $\mathfrak{q}$ is the intersection of all prime ideals 
+containing $\mathfrak{q}$, it follows that $\mathfrak{m}=\sqrt{\mathfrak{q}}$
+implies the only prime ideal of $R$ containing $\mathfrak{q}$ is $\mathfrak{m}$.
+
+Thus, $\mathfrak{m}$ is the unique prime ideal of $R/\mathfrak{q}$.
+So $R/\mathfrak{q}$ is a local ring with maximal ideal $\mathfrak{m}$
+and all zero-divisors in $R/\mathfrak{q}$ is contained in $\mathfrak{m}$
+since any element outside $\mathfrak{m}$ is a unit.
+Now $\mathfrak{m}=\sqrt{\mathfrak{q}}$ implies 
+the some power of any element of $\mathfrak{m}$ is in $\mathfrak{q}$,
+which implies some power of any zero-divisor in $R/\mathfrak{q}$ 
+is zero, i.e. nilpotent.
+\end{proof}
+
+\begin{lemma}{}{lem-of-loc-of-primary-ideal}
+Let $R$ be a ring and $S\subseteq R$ be a multiplicative subset.
+If $R$ is a ring where every zero-divisor is nilpotent,
+then $S^{-1}R$ is also a ring where every zero-divisor is nilpotent.
+\end{lemma}
+\begin{proof}
+Suppose $(a/s)(b/t)=0/1$ in $S^{-1}R$, then $(ab)/(st)=0/1$ 
+implies there exists some $u\in S$ such that $u(ab)=0$ in $R$.
+So $a$ is a zero divisor in $R$ and 
+the assumption implies $a^n=0$ for some $n\in\mathbb{Z}_{\geq1}$.
+Then $a/s\in S^{-1}R$ is nilpotent because $(a/s)^n=a^n/s^n=0/1$.
+\end{proof}
+
+\begin{theorem}{}{thm-loc-of-primary-ideal}
+Let $R$ be a ring and $S\subseteq R$ be a multiplicative subset.
+If $\mathfrak{q}\subseteq R$ is a $\mathfrak{p}$-primary ideal 
+and $\mathfrak{p}\cap S=\varnothing$,
+then $S^{-1}\mathfrak{q}\subseteq S^{-1}R$ 
+is a $S^{-1}\mathfrak{p}$-primary ideal.
+\end{theorem}
+\begin{proof}
+\cbox{($S^{-1}\mathfrak{q}$ is a primary ideal)}
+It suffices to show $S^{-1}R/S^{-1}\mathfrak{q}$ is a 
+ring where every zero-divisor is nilpotent.
+Since localization is an exact functor, we have 
+$S^{-1}R/S^{-1}\mathfrak{q}\cong S^{-1}(R/\mathfrak{q})$
+as an $S^{-1}R$-module.
+Both sides are also $S^{-1}R$-algebras and the module isomorphism 
+respect multiplication, so this is in fact an isomorphism of rings.
+Then by \lref{lem-of-loc-of-primary-ideal}, we have 
+\begin{equation*}\begin{split}
+\mathfrak{q}\subseteq R\text{ is a primary ideal}&\Longrightarrow
+R/\mathfrak{q}\text{ is a ring where every zero-divisor is nilpotent}\\
+&\Longrightarrow S^{-1}(R/\mathfrak{q})\text{ is a ring where every zero-divisor is nilpotent}\\
+&\Longrightarrow S^{-1}R/S^{-1}\mathfrak{q}\text{ is a ring where every zero-divisor is nilpotent}\\
+&\Longrightarrow S^{-1}\mathfrak{q}\subseteq S^{-1}R\text{ is a primary ideal}
+\end{split}\end{equation*}
+\cbox{($\sqrt{S^{-1}\mathfrak{q}}=S^{-1}\mathfrak{p}$)}
+$\sqrt{S^{-1}\mathfrak{q}}$ is the intersection of all prime ideal 
+of $S^{-1}R$ containing $S^{-1}\mathfrak{q}$.
+So $\sqrt{S^{-1}\mathfrak{q}}\subseteq S^{-1}\mathfrak{p}$ because 
+$S^{-1}\mathfrak{p}$ is a prime ideal of $S^{-1}R$ 
+containing $S^{-1}\mathfrak{q}$.
+This uses the assumption that $S\cap\mathfrak{p}=\varnothing$.
+
+Conversely, suppose $a/s\in S^{-1}\mathfrak{p}$
+with $a\in\mathfrak{p}$ and $s\in S$.
+Then $a^n\in\mathfrak{q}$ for some $n\in\mathbb{Z}_{\geq1}$
+because $\mathfrak{p}=\sqrt{\mathfrak{q}}$.
+$S$ is multiplicative and $s\in S$ implies $s^n\in S$.
+It follows that $(a/s)^n=a^n/s^n\in S^{-1}\mathfrak{q}$
+which shows $a/s\in\sqrt{S^{-1}\mathfrak{q}}$.
+This completes the proof because every element of $S^{-1}\mathfrak{p}$
+is a finite sum of $a/s$ with $a\in\mathfrak{p}$ and $s\in S$.
+\end{proof}
+
+\begin{proposition}{}{prop-loc-of-primary-ideal}
+Let $R$ be a ring and $S\subseteq R$ be a multiplicative subset.
+Let $\mathfrak{p}$ be a prime ideal of $R$ 
+with $\mathfrak{p}\cap S=\varnothing$.
+Then every $S^{-1}\mathfrak{p}$-primary ideal 
+is of the form $S^{-1}\mathfrak{q}$ where 
+$\mathfrak{q}\subseteq R$ is a $\mathfrak{p}$-primary ideal.
+\end{proposition}
+\begin{proof}
+Let $\mathfrak{a}$ be a $S^{-1}\mathfrak{q}$-primary ideal and define 
+\begin{equation*}
+\mathfrak{q}=\left\{a\in R\;\middle|\;\frac a1\in\mathfrak{a}\right\}\subseteq R
+\end{equation*}
+Then $\mathfrak{q}\subseteq R$ is an ideal and 
+$\mathfrak{a}=S^{-1}\mathfrak{q}$.
+
+To see $\mathfrak{q}$ is a $\mathfrak{p}$-primary ideal,
+suppose $ab\in\mathfrak{q}$.
+Then $ab/1=(a/1)(b/1)\in S^{-1}\mathfrak{q}=\mathfrak{a}$
+which is a $S^{-1}\mathfrak{p}$-primary ideal.
+So either $a/1\in\mathfrak{a}$ or $(b/1)^n=b^n/1\in\mathfrak{a}$ for some
+$n\in\mathbb{Z}_{\geq1}$.
+Therefore, either $a\in\mathfrak{q}$ or $b^n\in\mathfrak{q}$ for some
+$n\in\mathbb{Z}_{\geq1}$, which shows $\mathfrak{q}$ is a primary ideal.
+Finally, $\mathfrak{q}$ is a $\sqrt{\mathfrak{q}}$-primary ideal 
+implies $S^{-1}\mathfrak{q}$ is a $(S^{-1}\sqrt{\mathfrak{q}})$-primary ideal
+by \tref{thm-loc-of-primary-ideal}.
+This shows 
+\begin{equation*}
+S^{-1}\sqrt{\mathfrak{q}}=\sqrt{S^{-1}\mathfrak{q}}
+=\sqrt{\mathfrak{a}}=S^{-1}\mathfrak{p}
+\end{equation*}
+Since prime ideal of $S^{-1}R$ is in bijection 
+with prime ideal of $R$ disjoint from $S$, we conclude 
+$\sqrt{\mathfrak{q}}=\mathfrak{p}$.
+\end{proof}
+
+\section{Length of Module}
+\begin{definition}
+Let $R$ be a ring and $M$ be an $R$-module.
+$M$ is a \di{simple module} of $M\not=0$ and the only submodule of 
+$M$ is zero and $M$ itself.
+A \di{chain} of $M$ is a sequence of submodules 
+\begin{equation*}
+M=M_0\supsetneq M_1\supsetneq M_2\supsetneq\cdots\supsetneq M_n=0
+\end{equation*}
+A \di{composition series} is a maximal chain of $M$,
+in particular, quotients between consecutive submodules are simple modules.
+The \di{length} of $M$ is 
+\begin{equation*}
+\ell_R(M)=\inf\{n\in\mathbb{Z}_{\geq0}\mid\text{there exist a 
+composition series }M=M_0\supsetneq M_1\supsetneq\cdots\supsetneq M_n=0\}
+\end{equation*}
+\end{definition}
+
+\begin{lemma}{}{lem-submod-has-smaller-length}
+Let $R$ be a ring.
+If $N\subsetneq M$ is an strict inclusion of $R$-modules.
+Then either $\ell_R(N)=\ell_R(M)=\infty$ or 
+$\ell_R(N)<\ell_R(M)$.
+\end{lemma}
+\begin{proof}
+Let $M=M_0\supsetneq M_1\supsetneq M_2\supsetneq\cdots\supsetneq M_n=0$ 
+be a composition series of $M$ of minimal length.
+Let $N_i=N\cap M_i$.
+Then 
+\begin{equation*}
+N=N_0\supseteq N_1\supseteq N_2\supseteq\cdots\supseteq N_n=0
+\end{equation*}
+Note that $N_i/N_{i+1}=(M_i\cap N)/(M_{i+1}\cap N)\subseteq M_i/M_{i+1}$.
+Thus $N_i/N_{i+1}$ is either $0$ or simple. 
+If $N_i/N_{i+1}=M_i/M_{i+1}$ for all $i$, then $N=M$.
+Therefore, $N_i/N_{i+1}=0$ for some $i$, 
+which shows $\ell_R(N)<\ell_R(M)$.
+\end{proof}
+
+\begin{theorem}{}{thm-length-well-defined}
+Let $R$ be a ring and $M$ be an $R$-module 
+with a composition series of length $n$.
+Then 
+\begin{enumerate}[label=(\arabic*)]
+\item
+Every composition series of $M$ has length $n$.
+\item
+Every chain of $M$ has length at most $n$.
+\item 
+Every chain of $M$ can be extended to a composition series of $M$.
+\end{enumerate}
+\end{theorem}
+\begin{proof}
+We may assume $n$ is the smallest length of a composition series of $M$.
+Let $M=M_0\supsetneq$$M_1\supsetneq M_2\supsetneq\cdots\supsetneq M_n=0$ 
+be the given composition series of $M$.
+
+If $M=M_0'\supsetneq M_1'\supsetneq M_2'\supsetneq\cdots\supsetneq M_m'=0$ 
+is another composition series of $M$, then $m\geq n$.
+On the other hand, $\ell(M_1')\leq\ell(M)-1$, $\ell(M_2')\leq\ell(M)-2$, 
+$\ell(M_3')\leq\ell(M)-3$ and so on by \lref{lem-submod-has-smaller-length}.
+Thus, $0\leq\ell(M_m')\leq\ell(M)-m=n-m$ which implies $m\leq n$.
+The remaining parts are clear.
+\end{proof}
+
+\begin{corollary}{Length is Additive}{cor-length-additive}
+Let $R$ be a ring and let $0\to M_1\to M_2\to M_3\to0$ 
+be a short exact sequence of $R$-modules.
+Then 
+\begin{equation*}
+\ell_R(M_2)=\ell_R(M_1)+\ell_R(M_3).
+\end{equation*}
+\end{corollary}
+
+\begin{lemma}{}{lem-simple-module}
+Let $R$ be a ring and $M$ be an $R$-module.
+The following are equivalent:
+\begin{enumerate}[label=(\arabic*)]
+\item
+$M$ is simple.
+\item
+$\ell_R(M)=1$.
+\item 
+$M\cong R/\mathfrak{m}$ for some maximal ideal $\mathfrak{m}\subseteq R$.
+\end{enumerate}
+\end{lemma}
+\begin{proof}
+$(3)\Longrightarrow(2)\Longrightarrow(1)$ is clear.
+For $(1)\Longrightarrow(3)$, let $x\in M\setminus\{0\}$.
+The submodule generated by $x$ is $M$ itself because $M$ is simple.
+Consider the $R$-module homomorphism $\varphi:R\to M$ defined by $r\mapsto rx$.
+$\varphi$ is surjective because $x$ generate $M$,
+and $\ker\varphi$ is a maximal ideal of $R$ because $M$ is simple 
+and the image of any ideal containing $\ker\varphi$ would be a submodule of $M$.
+\end{proof}
+
+\begin{remark}
+In a local ring $R$ with unique maximal ideal $\mathfrak{m}$,
+any simple $R$-module is isomorphic to the residue field $R/\mathfrak{m}$.
+\end{remark}
+
+\begin{lemma}{}{lem-fg-mod-ann-by-max-ideal}
+Let $(R,\mathfrak{m},k)$ be a local ring.
+If $M$ is a finitely generated $R$-module annihilated by $\mathfrak{m}$
+so that it can be viewed as an $k=R/\mathfrak{m}$-module, 
+then $\ell_R(M)=\dim_kM$.
+\end{lemma}
+\begin{proof}
+Let $x_1,\dots,x_n$ be a basis of $M$ as an $k$-module/vector space.
+The $x_1,\dots,x_n$ also generate $M$ as an $R$-module because any element 
+of $M$ can be written as a $R$-linear combination of $x_1,\dots,x_n$
+(write as a $k$-linear combination first, then lift the coefficients to $R$).
+
+For any $i\in\{0,\dots,n\}$, let $M_i$ denote the 
+submodule generated by $x_i+1,\dots,x_n$ (for example $M_0=M$, $M_n=0$).
+Then $M=M_0\supseteq M_1\supseteq M_2\supseteq\cdots\supseteq M_n=0$ 
+is a chain of $M$ and $M_i/M_{i+1}\cong k$ is generated by $x_{i+1}$.
+Since $\mathfrak{m}$ annihilates $x_{n+1}$,
+it follows that the $R$-module homomorphism 
+\begin{equation*}\begin{array}{r@{}c@{}l}
+R&{}\longrightarrow{}& M_i/M_{i+1} \\
+r&{}\longmapsto{}& rx_{i+1}
+\end{array}\end{equation*} 
+is surjective with kernel containing $\mathfrak{m}$.
+So $M_i/M_{i+1}$ is either zero or isomorphic to $R/\mathfrak{m}=k$.
+If $M_i/M_{i+1}=0$, then $x_{i+1}$ is in the $R$-submodule of 
+$M$ generated by $x_{i+2},\dots,x_n$,
+contradicting the $k$-linear independence of $x_1,\dots,x_n$.
+
+Thus $M_i/M_{i+1}$ is isomorphic to $k$ which implies
+they are simple $R$-modules by \lref{lem-simple-module}.
+So $M=M_0\supseteq M_1\supseteq M_2\supseteq\cdots\supseteq M_n=0$
+is a composition series of $M$ and $\ell_R(M)=n=\dim_kM$
+by \tref{thm-length-well-defined}.
+\end{proof}
+
+\begin{lemma}{}{lem-finite-length-local-ring}
+A noetherian local ring $(R,\mathfrak{m})$ has finite length (as an $R$-module) 
+if and only if $\mathfrak{m}^n=0$ for some $n\in\mathbb{Z}_{\geq1}$.
+\end{lemma}
+\begin{proof}
+If $\mathfrak{m}^n\not=0$ for all $n\in\mathbb{Z}_{\geq1}$, 
+then $\ell_R(R)=\infty$ because $R\supsetneq\mathfrak{m}
+\supsetneq\mathfrak{m}^2\supsetneq\mathfrak{m}^3\supsetneq\cdots$ 
+is an infinite descending chain of submodules.
+Each inclusion is strict because if $\mathfrak{m}^n=\mathfrak{m}^{n+1}$,
+then $\mathfrak{m}^n=0$ by Nakayama's lemma.
+
+Conversely, if $\mathfrak{m}^n=0$ for some $n\in\mathbb{Z}_{\geq1}$,
+then consider the chain $R\supsetneq\mathfrak{m}\supsetneq\mathfrak{m}^2
+\supsetneq\cdots\supsetneq\mathfrak{m}^{n-1}\supsetneq\mathfrak{m}^n=0$.
+Each quotient $\mathfrak{m}^i/\mathfrak{m}^{i+1}$ is finitely generated 
+because $R$ is noetherian and is annihilated by $\mathfrak{m}$.
+By \lref{lem-fg-mod-ann-by-max-ideal}, $\mathfrak{m}^i/\mathfrak{m}^{i+1}$ 
+have finite length finite.
+So we can extend the chain to a composition series of $R$ 
+with finitely many terms.
+Therefore, $R$ has finite length.
+\end{proof}
+
+\begin{definition}
+Let $(R,\mathfrak{m})$ be a local ring.
+A \dni{parameter ideal for $R$}\index{parameter ideal} 
+is an ideal $\mathfrak{q}\subseteq\mathfrak{m}$ such that 
+$R/\mathfrak{q}$ has finite length.
+\end{definition}
+
+\begin{lemma}{}{lem-parameter-ideal}
+Let $(R,\mathfrak{m})$ be a noetherian local ring.
+An ideal $\mathfrak{q}\subseteq\mathfrak{m}$ is a parameter ideal for $R$
+if and only if $\mathfrak{m}^n\subseteq\mathfrak{q}$ for some 
+$n\in\mathbb{Z}_{\geq1}$. 
+\end{lemma}
+\begin{proof}
+$R/\mathfrak{q}$ is a local ring with maximal ideal $\mathfrak{m}/\mathfrak{q}$.
+So $R/\mathfrak{q}$ has finite length if and only if 
+$(\mathfrak{m}/\mathfrak{q})^n=0$ for some $n\in\mathbb{Z}_{\geq1}$
+by \lref{lem-finite-length-local-ring}.
+Now the ideal $(\mathfrak{m}/\mathfrak{q})^n$ in the ring $R/\mathfrak{q}$
+is precisely $\mathfrak{m}^n/\mathfrak{q}$.
+Hence the condition that $(\mathfrak{m}/\mathfrak{q})^n=0$
+is equivalent to $\mathfrak{m}^n/\mathfrak{q}=0$
+which is equivalent to $\mathfrak{m}^n\subseteq\mathfrak{q}$.
+\end{proof}
+
+\begin{corollary}{}{cor-parameter-ideal-for-the-ring}
+Let $(R,\mathfrak{m})$ be a noetherian local ring.
+Then $\mathfrak{q}$ is a parameter ideal for $R$ 
+if and only if $\mathfrak{q}$ is a $\mathfrak{m}$-primary ideal.
+\end{corollary}
+\begin{proof}
+$R$ is noetherian implies $\mathfrak{m}$ is finitely generated.
+By \lref{lem-parameter-ideal} and \lref{lem-radical-is-maximal}, we have
+\begin{equation*}\begin{split}
+\mathfrak{q}\text{ is a parameter ideal for }R
+&\iff\mathfrak{m}^n\subseteq\mathfrak{q}\text{ for some }n\in\mathbb{Z}_{\geq1}\\
+&\iff\sqrt{\mathfrak{q}}=\mathfrak{m}\\
+&\iff\mathfrak{q}\text{ is a }\mathfrak{m}\text{-primary ideal}\qedhere
+\end{split}\end{equation*}
+\end{proof}
+
+\begin{corollary}{}{}
+Let $k$ be a field and $R=k[x_1,\dots,x_n]$ be a polynomial ring over $k$.
+Let $\mathfrak{m}$ be the maximal ideal 
+generated by the variables $x_1,\dots,x_n$.
+Then the parameter ideals for the local ring $R_{\mathfrak{m}}$ are precisely
+the localizations of $\mathfrak{m}$-primary ideals of $R$.
+\end{corollary}
+\begin{proof}
+Parameter ideals for $R_{\mathfrak{m}}$ are 
+$\mathfrak{m}R_{\mathfrak{m}}$-primary ideals of $R_{\mathfrak{m}}$
+by \cref{cor-parameter-ideal-for-the-ring}.
+Every $\mathfrak{m}R_{\mathfrak{m}}$-primary ideal of $R_{\mathfrak{m}}$ is
+the localization of a $\mathfrak{m}$-primary ideal of $R$ 
+by \pref{prop-loc-of-primary-ideal}.
+\end{proof}
+
+\section{Hilbert-Samuel Polynomial}
+
+Goals:
+\begin{enumerate}[label=(\arabic*)]
+\item
+Prove some result saying length can be computed by dimension over 
+some field in some situations.
+\item
+Prove some result that expresses the Hilbert-Samuel polynomial 
+of a module over some local ring in terms of things Macaulay 2 can compute.
+\end{enumerate}
+
+\pagebreak
+
+\printindex
+\hypertarget{index}{}
+\phantomsection
+\addcontentsline{toc}{section}{Index}
+\end{document}
