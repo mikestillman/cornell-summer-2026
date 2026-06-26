@@ -270,5 +270,7 @@ Questions for Mike:
 2. How does M2 compute quotient rings?
 3. Is there anything stopping it from working in the local ring case?
 4. Overleaf?
-
+5. Can one "see into" the while loop for debugging purposes?
+6. If I start using some weird ring, is instance(n, ZZ) ever going to cause problems?
+7. Is there a length of abelian group function in M2?
 

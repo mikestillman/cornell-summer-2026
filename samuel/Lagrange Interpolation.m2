@@ -7,11 +7,11 @@ use QQ[x]
 
 -- partial sum takes a list (of integers) of size n 
 -- and return a list of size n+1 where the 0-th element is 0 and
---  the (i+1)-th element is the sum of the first i elements of the input list.
+-- the (i+1)-th element is the sum of the first i elements of the input list.
 
--- taking the partial sum of the successive difference of a list 
+-- taking the successive difference of the partial sum of a list 
 -- should return the original list.
--- taking the successive difference of the partial sum of a list should return 
+-- taking the partial sum of the successive difference of a list should return 
 -- the original list but each element got subtracted by the first element.
 
 -- it's like taking derivative of integral return the same function (FTC),
@@ -49,13 +49,13 @@ removeNth = (L, N) -> (
     -- P_i(x_i) = 1 and P_i(x_j) = 0 for j != i, and then take P = sum y_i * P_i.
     -- The polynomial P_i can be constructed as 
         --     (x   - x_0)*...*(x   - x_n)
-        --    ---------------------------
+        --    -----------------------------
         --     (x_i - x_0)*...*(x_i - x_n)
     -- These are called the Lagrange basis, 
     -- use lagrangeBasis({x_0,...,x_n},i) to get P_i.
 
     -- Note that a polynomial of degree n has at most n roots.
-    -- So if two polynomials of degree at most n on n+1 points,
+    -- So if two polynomials of degree at most n agree on n+1 points,
     -- then they must be the same polynomial since their difference 
     -- has degree at most n and n+1 roots.
     -- Therefore, Lagrange interpolation gives the unique polynomial
@@ -125,6 +125,7 @@ matchPolynomial = (L) -> (
 -- Question for Mike: 
     -- can one "see into" the while loop for debugging purposes?
     -- If I start using some weird ring, 
+
     -- is instance(n, ZZ) ever going to cause problems?
 
 -- examples
@@ -162,7 +163,6 @@ matchPolynomial({1,2,3,4,9,16,25,36})
 matchPolynomial({10,20,30,40,41,42,43,44})
    -- should return {x+37, {37,38,39,40,41,42,43,44}}
 
-
 needsPackage "LocalRings"
 needsPackage "HilbertSamuel"
 
@@ -181,6 +181,7 @@ use QQ[x]
 matchPolynomial(partialSum(L))
 hilbertSamuelPolynomial(maxR)
 
+QQ[x]/(x^2 + 1) = QQ[i]
 
 
 
