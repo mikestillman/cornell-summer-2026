@@ -23,24 +23,31 @@ succDiff = (L) -> (
     for i from 1 to #L-1 list L#i - L#(i-1)
 )
 
-partialSum = (L) -> (
-    if not instance(L, List) then error "Input must be a list";
-    -- check each element of input list is an integer, or things we can do addition with
-    for i from 0 to #L list sum take(L,i)
-)
+--partialSum = (L) -> (
+--    if not instance(L, List) then error "Input must be a list";
+--    -- check each element of input list is an integer, or things we can do addition with
+--    for i from 0 to #L list sum take(L,i)
+--)
+-- should be the same as
+prepend(0,accumulate(plus,0,L))
+-- and we should use this instead.
 
 -- removeNth take a list and a integer and remove the (n-1)-th element of the list
 -- M2 must have this already, but I couldn't find it.
 
-removeNth = (L, N) -> (
-    if not instance(L, List) then error "First input must be a list";
-    if not instance(N, ZZ) then error "Second input must be an integer";
-    if N < 0 or N >= #L then error "Second input must be between 0 and the length of the list";
-    apply(delete(N,toList(0..(#L-1))), i -> L#i)
-    -- The following also works.
-    -- I am leaving it here for now because I want to remember how to use select.
-    -- apply(select(toList(0..(#L-1)), i -> i != N), i -> L#i)
-)
+--removeNth = (L, N) -> (
+--    if not instance(L, List) then error "First input must be a list";
+--    if not instance(N, ZZ) then error "Second input must be an integer";
+--    if N < 0 or N >= #L then error "Second input must be between 0 and the length of the list";
+--    apply(delete(N,toList(0..(#L-1))), i -> L#i)
+--    -- The following also works.
+--    -- I am leaving it here for now because I want to remember how to use select.
+--    -- apply(select(toList(0..(#L-1)), i -> i != N), i -> L#i)
+--)
+
+-- should be the same as
+drop(L,{N,N})
+-- and we should use this instead.
 
 -- Lagrange interpolation
     -- Given n+1 points (x_0,y_0),...,(x_n,y_n) with distinct x_i's, 
@@ -67,7 +74,7 @@ lagrangeBasis = (L,n) -> (
     if n < 0 or n >= #L then error "Second input must be between 0 and the length of the list";
     -- needs to check the x-coordinates are distinct
     -- maybe use delete function and check the deleted list has exactly one less
-    product apply (removeNth(L,n), a -> (x - a) / (L#n - a))
+    product apply (drop(L,{n,n}), a -> (x - a) / (L#n - a))
 )
 
 lagrangeInterpolation = (L) -> (
@@ -120,13 +127,11 @@ matchPolynomial = (L) -> (
         else L = succDiff(L);
     );
     error "The last n+2 elements of the list does not match any polynomial of degree at most n for any nonnegative integer n";
+    -- should be n+3, because before hitting {0,0},
+    -- the previous list must be three elements that are the same.
+    -- Can be tested since matchPolynomial({1,2,3}) will out put an error.
+    -- If we want n+2, just check that last element is 0 in the while loop.
 )
-
--- Question for Mike: 
-    -- can one "see into" the while loop for debugging purposes?
-    -- If I start using some weird ring, 
-
-    -- is instance(n, ZZ) ever going to cause problems?
 
 -- examples
     -- don't forget to run use QQ[x] first
@@ -176,9 +181,9 @@ maxSe = sub(maxS,SM)
 Ie = sub(I,SM)
 
 L = hilbertSamuelFunction(SM^1/Ie,0,10)
-partialSum(L)
+prepend(0,accumulate(plus,0,L))
 use QQ[x]
-matchPolynomial(partialSum(L))
+matchPolynomial(prepend(0,accumulate(plus,0,L)))
 hilbertSamuelPolynomial(maxR)
 
 QQ[x]/(x^2 + 1) = QQ[i]
