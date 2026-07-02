@@ -262,6 +262,9 @@ TODO:
 
     kk[x_1..x_n] -> kk[y_1..y_n] by x_i -> y_i + a_i
 
+6. Implement a function that compute a composition series 
+    for a module of finite length.
+
 Questions for Mike:
 1. Any idea to get start on compute hilbertSamuelPolynomial for general parameter ideals?
     length(R/m^n)=length(R_m/m^n)
@@ -273,4 +276,9 @@ Questions for Mike:
 5. Can one "see into" the while loop for debugging purposes?
 6. If I start using some weird ring, is instance(n, ZZ) ever going to cause problems?
 7. Is there a length of abelian group function in M2?
+
+M ZZ/6
+0 -> 3M -> M
+
+QQ[x]/(x^2+1)
 

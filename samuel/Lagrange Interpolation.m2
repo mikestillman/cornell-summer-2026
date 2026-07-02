@@ -68,17 +68,16 @@ drop(L,{N,N})
     -- Therefore, Lagrange interpolation gives the unique polynomial
     -- of degree at most n that passes through the given n+1 points.
 
-lagrangeBasis = (L,n) -> (
-    if not instance(L, List) then error "First input must be a list";
-    if not instance(n, ZZ) then error "Second input must be an integer";
+lagrangeBasis = method()
+lagrangeBasis(List,ZZ) := RingElement => (L,n) -> (
     if n < 0 or n >= #L then error "Second input must be between 0 and the length of the list";
     -- needs to check the x-coordinates are distinct
     -- maybe use delete function and check the deleted list has exactly one less
     product apply (drop(L,{n,n}), a -> (x - a) / (L#n - a))
 )
 
-lagrangeInterpolation = (L) -> (
-    if not instance(L, List) then error "Input must be a list";
+lagrangeInterpolation = method()
+lagrangeInterpolation List := RingElement => (L) -> (
     if #L < 2 then error "Input list must have at least two elements";
     for i from 0 to #L-1 do (
         if not instance(L#i, List) then error "Each element of the input list must be a list";
@@ -114,14 +113,14 @@ lagrangeInterpolation = (L) -> (
 
 matchPolynomial = (L) -> (
     if not instance(L, List) then error "Input must be a list";
-    InitialList = L;
-    Length = #L;
+    InitialList := L;
+    Length := #L;
     while #L >= 2 do (
         if take(L,-2) == {0,0} then (
-            d = Length - #L - 1; -- this will be the degree of the output polynomial
+            d := Length - #L - 1; -- this will be the degree of the output polynomial
             -- if we say the zero polynomial have degree -1
             ListofPoints = for i from Length - d - 2 to Length-1 list {i,InitialList#i};
-            P = lagrangeInterpolation(ListofPoints);
+            P := lagrangeInterpolation(ListofPoints);
             return {P, for i from 0 to Length - 1 list P(i)}
         )
         else L = succDiff(L);
@@ -133,13 +132,22 @@ matchPolynomial = (L) -> (
     -- If we want n+2, just check that last element is 0 in the while loop.
 )
 
+testList = (L) -> (
+    L1 := L;
+    L1#0 = 13;  
+)
+LM = new MutableList from {1,2,3}
+testList({1,2,3})
+testList(LM)
+peek LM
+
 -- examples
     -- don't forget to run use QQ[x] first
     -- I'm still confused about how to "use" variables in package,
     -- but this will do for now.
 use QQ[x]
 
-lagrangeBasis({3,6},1)
+assert (lagrangeBasis({3,6},1) == 1/3*x - 1)
     -- the unique degree 1 polynomial p with p(3) = 0 and p(6) = 1, 
     -- i.e., x/3 - 1
 lagrangeBasis({3,6},0)
