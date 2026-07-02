@@ -18,7 +18,7 @@ export {"lagrangeBasis", "lagrangeInterpolation", "matchPolynomial"}
 -* Code section *-
 
 restart 
-use QQ[x]
+use QQ[x] -- TODO: how do we return a polynomial without having a ring like this under the hood?
 
 -- successive difference take a list (of integers) of size n 
 -- and return a list of size n-1 where the i-th element is 
@@ -87,17 +87,16 @@ succDiff = (L) -> (
     -- Therefore, Lagrange interpolation gives the unique polynomial
     -- of degree at most n that passes through the given n+1 points.
 
-lagrangeBasis = (L,n) -> (
-    if not instance(L, List) then error "First input must be a list";
-    if not instance(n, ZZ) then error "Second input must be an integer";
+lagrangeBasis = method()
+lagrangeBasis(List, ZZ) := RingElement => (L, n) -> (
     if n < 0 or n >= #L then error "Second input must be between 0 and the length of the list";
     -- needs to check the x-coordinates are distinct
     -- maybe use delete function and check the deleted list has exactly one less
     product apply (drop(L,{n,n}), a -> (x - a) / (L#n - a))
 )
 
-lagrangeInterpolation = (L) -> (
-    if not instance(L, List) then error "Input must be a list";
+lagrangeInterpolation = method()
+lagrangeInterpolation(List) := RingElement => (L) -> (
     if #L < 2 then error "Input list must have at least two elements";
     for i from 0 to #L-1 do (
         if not instance(L#i, List) then error "Each element of the input list must be a list";
@@ -131,8 +130,13 @@ lagrangeInterpolation = (L) -> (
 -- begins to match a polynomial in order to be absolutely certain 
 -- we have the correct polynomial.
 
-matchPolynomial = (L) -> (
-    if not instance(L, List) then error "Input must be a list";
+
+-- The return type for this function is {RingElement, List}
+-- Where the first item is the best matched polynomial p(n) and 
+-- the list is the values p(n) for n = 1,2,..., #L (off by one error in this
+-- line?)
+matchPolynomial = method()
+matchPolynomial(List) := List => (L) -> (
     InitialList = L;
     Length = #L;
     while #L >= 2 do (
