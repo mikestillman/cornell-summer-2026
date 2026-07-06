@@ -52,12 +52,18 @@ polynomialFromSuccessiveDifferences(List) := RingElement => (L) -> (
         allDifferences,
         L -> all(L, x -> x == 0)
     );
-    if all(isAllZeros, x -> x == false) throw error "Data does not come from polynomial";
+    if all(isAllZeros, x -> x == false) then throw error "Data does not come from polynomial";
 
     -- write subroutine to build the polynomial from the data 
+    coeffs = apply(allDifferences, x -> x#0); -- depends on each list in allDifferences being nonempty
+
+    -- The following computation is called something like the ``Newton
+    -- Difference formula''
+    -- or the ``Newton–Gregory forward interpolation formula'' perhaps we
+    -- should find a reference.
+    finalTerms = for i from 0 to #L-1 list coeffs#i * binomial(x,i);
+    return sum(finalTerms);
 )
-
-
 
 
 -- allSuccessiveDifferences tests
@@ -90,4 +96,5 @@ allSuccessiveDifferences(L2) ==
 -- constructPolynomialFromRepeatedDifference tests
 -- L1: should return x^2
 -- L2: should fail
-
+polynomialFromSuccessiveDifferences(L1)
+polynomialFromSuccessiveDifferences(L2)
