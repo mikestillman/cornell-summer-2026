@@ -44,6 +44,18 @@ allSuccessiveDifferences(List) := List => (L) -> (
     2. Check that this data defines a polynomial
     3. use the formula to construct the polynomial
 *-
+polynomialFromSuccessiveDifferences = method()
+polynomialFromSuccessiveDifferences(List) := RingElement => (L) -> (
+    allDifferences = allSuccessiveDifferences(L);
+    -- The following line checks if each row is the zero list
+    isAllZeros = apply(
+        allDifferences,
+        L -> all(L, x -> x == 0)
+    );
+    if all(isAllZeros, x -> x == false) throw error "Data does not come from polynomial";
+
+    -- write subroutine to build the polynomial from the data 
+)
 
 
 
@@ -73,4 +85,9 @@ allSuccessiveDifferences(L2) ==
     {-4, 1},
     {5}
 }
+
+
+-- constructPolynomialFromRepeatedDifference tests
+-- L1: should return x^2
+-- L2: should fail
 
