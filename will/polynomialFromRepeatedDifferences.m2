@@ -3,6 +3,8 @@ Form a sequence we can take the repeated difference and use the first term
 of each of the repeated differences to reconstruct the polynomial from 
 which the sequence was sampled. We should maybe write a few methods:
 
+0: A method to collect the data of taking repeated successive difference
+
 1: a method to determine if the given sequence came from a polynomial
     take the repeated differences until either the sequence converges
     to the zero list or until we are left with a single term
