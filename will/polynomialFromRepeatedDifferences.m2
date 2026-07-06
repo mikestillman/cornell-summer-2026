@@ -63,6 +63,8 @@ polynomialFromSuccessiveDifferences(List) := RingElement => (L) -> (
     -- Difference formula''
     -- or the ``Newton–Gregory forward interpolation formula'' perhaps we
     -- should find a reference.
+    
+    -- as usual like with our other code, this line depends on `use QQ[x];`
     finalTerms = for i from 0 to #L-1 list coeffs#i * binomial(x,i);
     return sum(finalTerms);
 )
@@ -71,6 +73,8 @@ polynomialFromSuccessiveDifferences(List) := RingElement => (L) -> (
 -- allSuccessiveDifferences tests
 -- TODO: if we ever happen upon the zero list do we want to terminate
 -- immediately?
+
+use QQ[x];
 
 L1 := {0,1,4,9,16,25};
 allSuccessiveDifferences(L1) == 
