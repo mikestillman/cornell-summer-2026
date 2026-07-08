@@ -18,74 +18,13 @@ export {"lagrangeBasis", "lagrangeInterpolation", "matchPolynomial"}
 -* Code section *-
 
 restart 
-use QQ[x] -- TODO: how do we return a polynomial without having a ring like this under the hood?
-
--- successive difference take a list (of integers) of size n 
--- and return a list of size n-1 where the i-th element is 
--- the difference of the (i+1)-th and i-th elements of the input list.
-
--- partial sum takes a list (of integers) of size n 
--- and return a list of size n+1 where the 0-th element is 0 and
--- the (i+1)-th element is the sum of the first i elements of the input list.
-
--- taking the successive difference of the partial sum of a list 
--- should return the original list.
--- taking the partial sum of the successive difference of a list should return 
--- the original list but each element got subtracted by the first element.
-
--- it's like taking derivative of integral return the same function (FTC),
--- but taking integral of derivative return the same function up to a constant.
+LagrangePolynomialRing = memoize(() -> QQ(monoid [getSymbol "x"]))
 
 succDiff = (L) -> (
     if not instance(L, List) then error "Input must be a list";
     -- check each element of input list is an integer, or things we can do subtraction with
     for i from 1 to #L-1 list L#i - L#(i-1)
 )
-
---partialSum = (L) -> (
---    if not instance(L, List) then error "Input must be a list";
---    -- check each element of input list is an integer, or things we can do addition with
---    for i from 0 to #L list sum take(L,i)
---)
--- should be the same as
--- prepend(0,accumulate(plus,0,L))
--- and we should use this instead.
-
--- removeNth take a list and a integer and remove the (n-1)-th element of the list
--- M2 must have this already, but I couldn't find it.
-
---removeNth = (L, N) -> (
---    if not instance(L, List) then error "First input must be a list";
---    if not instance(N, ZZ) then error "Second input must be an integer";
---    if N < 0 or N >= #L then error "Second input must be between 0 and the length of the list";
---    apply(delete(N,toList(0..(#L-1))), i -> L#i)
---    -- The following also works.
---    -- I am leaving it here for now because I want to remember how to use select.
---    -- apply(select(toList(0..(#L-1)), i -> i != N), i -> L#i)
---)
-
--- should be the same as
--- drop(L,{N,N})
--- and we should use this instead.
-
--- Lagrange interpolation
-    -- Given n+1 points (x_0,y_0),...,(x_n,y_n) with distinct x_i's, 
-    -- Lagrange interpolation gives a polynomial P of degree at most n with P(x_i) = y_i for all i.
-    -- It suffices to find polynomials P_i of degree n such that 
-    -- P_i(x_i) = 1 and P_i(x_j) = 0 for j != i, and then take P = sum y_i * P_i.
-    -- The polynomial P_i can be constructed as 
-        --     (x   - x_0)*...*(x   - x_n)
-        --    -----------------------------
-        --     (x_i - x_0)*...*(x_i - x_n)
-    -- These are called the Lagrange basis, 
-    -- use lagrangeBasis({x_0,...,x_n},i) to get P_i.
-
-    -- Note that a polynomial of degree n has at most n roots.
-    -- So if two polynomials of degree at most n agree on n+1 points,
-    -- then they must be the same polynomial since their difference 
-    -- has degree at most n and n+1 roots.
-    -- Therefore, Lagrange interpolation gives the unique polynomial
-    -- of degree at most n that passes through the given n+1 points.
 
 lagrangeBasis = method()
 lagrangeBasis(List, ZZ) := RingElement => (L, n) -> (
@@ -107,34 +46,6 @@ lagrangeInterpolation(List) := RingElement => (L) -> (
     return sum for i from 0 to #L-1 list L#i#1 * lagrangeBasis(apply(L,pair -> pair#0),i)
 )
 
--- So there exists a degree at most n polynomial through any n+1 points,
--- but one should not expect there to be a polynomial through n+2 general points,
--- e.g., three general points is not on a line.
--- The matchPolynomial function below takes a list of integers,
--- and checks, from n = 0, if the last n+2 elements of the list 
--- matches a polynomial of degree at most n.
--- When it finds the first n such that this happens, 
--- it will return the polynomial, and the list of values of 
--- the polynomial evaluated at 0,1,...,(length of the input list - 1)
--- for you to compare with the input list.
-
--- It should be easy to modify the function to check if the last n+d elements 
--- of the list matches a polynomial of  degree at most n for any d >= 2.
--- Sometimes the last three elements of a list is an arithmetic progression, 
--- and matchPolynomial will return a degree 1 polynomial,
--- but we want to it to stop this early.
-
--- we can use this to get the Hilbert-Samuel polynomial 
--- using the Hilbert-Samuel function from the local ring package.
--- We still need a bound that guarantees that the Hilbert-Samuel function 
--- begins to match a polynomial in order to be absolutely certain 
--- we have the correct polynomial.
-
-
--- The return type for this function is {RingElement, List}
--- Where the first item is the best matched polynomial p(n) and 
--- the list is the values p(n) for n = 1,2,..., #L (off by one error in this
--- line?)
 matchPolynomial = method()
 matchPolynomial(List) := List => (L) -> (
     InitialList = L;
@@ -149,8 +60,8 @@ matchPolynomial(List) := List => (L) -> (
         )
         else L = succDiff(L);
     );
-    error "The last n+2 elements of the list does not match any polynomial of degree at most n for any nonnegative integer n";
-    -- should be n+3, because before hitting {0,0},
+    error "The last n+3 elements of the list does not match any polynomial of degree at most n for any nonnegative integer n";
+    -- n+3 because before hitting {0,0},
     -- the previous list must be three elements that are the same.
     -- Can be tested since matchPolynomial({1,2,3}) will out put an error.
     -- If we want n+2, just check that last element is 0 in the while loop.
@@ -159,42 +70,34 @@ matchPolynomial(List) := List => (L) -> (
 -* Documentation section *-
 beginDocumentation()
 
--*
 doc ///
 Key
   LagrangeInterpolation
 Headline
+  Apply Lagrange interpolation to a list of points.
 Description
   Text
-  Tree
-  Example
-  CannedExample
-Acknowledgement
-Contributors
-References
-Caveat
+  Example 
+    lagrangeInterpolation({{0,0},{2,4},{3,9}})
 SeeAlso
-Subnodes
 ///
 
 doc ///
 Key
+  lagrangeInterpolation
 Headline
+  Apply Lagrange interpolation to a list of points.
 Usage
-Inputs
+  lagrangeInterpolation(L)
+Inputs 
+  L:List
 Outputs
-Consequences
-  Item
+  :RingElement 
+    in the ring QQ[x]
 Description
   Text
   Example
-  CannedExample
-  Code
-  Pre
-ExampleFiles
-Contributors
-References
-Caveat
+    lagrangeInterpolation({{0,0},{2,4},{3,9}})
 SeeAlso
 ///
 -*
@@ -205,14 +108,17 @@ SeeAlso
 -- this makes it sound like equality checking is not defined for one of the
 -- types?
 TEST /// -* Positive tests for lagrangeBasis *-
-    use QQ[x]
-    assert(lagrangeBasis({3,6},1) == (x/3 - 1))
-    assert(lagrangeBasis({3,6},0) == (-x/3 + 2) )
-    assert(lagrangeBasis({-1,0,1},1) == (-x^2 + 1))
+    use QQ[z]
+    assert(sub(lagrangeBasis({3,6},1),{(ring lagrangeBasis({3,6},1))_0 => z}) == 1/3*z - 1)
+    assert(sub(lagrangeBasis({3,6},0),{(ring lagrangeBasis({3,6},0))_0 => z}) == -1/3*z + 2)
+    assert(sub(lagrangeBasis({-1,0,1},1),{(ring lagrangeBasis({-1,0,1},1))_0 => z}) == -z^2 + 1)
+
 ///
 
-TEST /// -* Positive tests for lagrangeInterpolation *-
+--TEST 
+/// -* Positive tests for lagrangeInterpolation *-
     use QQ[x]
+    
     assert(lagrangeInterpolation({{0,0},{1,1}}) == x)
     assert(lagrangeInterpolation({{0,0},{1,1},{2,2}}) == x)
     assert(lagrangeInterpolation({{0,0},{1,1},{2,2},{3,3}}) == x)
@@ -224,7 +130,8 @@ TEST /// -* Positive tests for lagrangeInterpolation *-
 /// 
 
 
-TEST /// -* Positive tests for matchPolynomial *-
+--TEST 
+/// -* Positive tests for matchPolynomial *-
     use QQ[x]
     assert(matchPolynomial({1,2,3,4,5,6}) == {x+1, {1,2,3,4,5,6}})
     assert(matchPolynomial({1,4,9,16,25}) == {x^2, {0,1,4,9,16,25}})
@@ -279,16 +186,13 @@ end--
 
 -* Development section *-
 restart
-debug needsPackage "LagrangeInterpolation"
+needsPackage "LagrangeInterpolation"
 check "LagrangeInterpolation"
 
 uninstallPackage "LagrangeInterpolation"
 restart
 installPackage "LagrangeInterpolation"
 viewHelp "LagrangeInterpolation"
-
-
-
 
 -- some extra tests using hilbertSamuel
 
