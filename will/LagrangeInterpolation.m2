@@ -112,7 +112,6 @@ TEST /// -* Positive tests for lagrangeBasis *-
     assert(sub(lagrangeBasis({3,6},1),{(ring lagrangeBasis({3,6},1))_0 => z}) == 1/3*z - 1)
     assert(sub(lagrangeBasis({3,6},0),{(ring lagrangeBasis({3,6},0))_0 => z}) == -1/3*z + 2)
     assert(sub(lagrangeBasis({-1,0,1},1),{(ring lagrangeBasis({-1,0,1},1))_0 => z}) == -z^2 + 1)
-
 ///
 
 --TEST 

@@ -196,30 +196,12 @@ restart
 installPackage "HilbertSamuel"
 viewHelp "HilbertSamuel"
 
-
-
 kk = ZZ/32003
 S = kk[x,y,z,w]
 I = ideal(z^3-y*w,y*z-x*w,y^3-x*z)
 R = S/I
 maxR = ideal(x,y,z,w)
 hilbertSamuelPolynomial(maxR)
-
-R^1/maxR^3
-basis (R^1/maxR^3)
-numcols oo
-
-methods LocalRings
-use S
-A = localRing(S,ideal(x,y,z,w))
-max A
-A^1/(max A)^3
-basis oo
-dim A
-
-A = localRing(S,ideal(x,y,z))
-dim A
-
 
 
 TODO:
@@ -248,7 +230,7 @@ TODO:
       2) check if contained in prime being localised at 
       3) use the already implemented function isPrimary for non-local rings
 
-4. add a function to compute length of module over polynomial ring ZZ.
+4. add a function to compute length of module over polynomial ring over ZZ.
 
 5. make hilbertSamuelPolynomial to work for other maximal ideals.
     S = kk[x_1..x_n]
@@ -262,8 +244,21 @@ TODO:
 
     kk[x_1..x_n] -> kk[y_1..y_n] by x_i -> y_i + a_i
 
-6. Implement a function that compute a composition series 
-    for a module of finite length.
+6. Implement a function that compute a composition series for a module of finite length.
+   Implement a way to check if a module is of finite length.
+7. Understand the in(I) procedure.
+8. Understand localLengthHook and localMinimalPresentationHook 
+   and work out some examples.
+9. Review polynomialFromRepeatedDifferences code, 
+   add some tests, add some docs. 
+   Perhaps have a proper read of the theory. 
+   Fold into LagrangeBasis code?
+10. Experimental explorations
+    - Broadly, explore the data we get from sampling hilbert samuel function. 
+    - When does it converge slowly/quickly? 
+    - Any difference between ideals or quotients.
+    - There's some code slowdowns for hilbertSamuelFunction. 
+      Perhaps explore Mahrud's code, and figure out how to implement partial caching? (pure software)
 
 Questions for Mike:
 1. Any idea to get start on compute hilbertSamuelPolynomial for general parameter ideals?
@@ -272,10 +267,20 @@ Questions for Mike:
     H(gr_q(R),i)=dim q^i/q^{i+1}=length(q^i/q^{i+1})?
 2. How does M2 compute quotient rings?
 3. Is there anything stopping it from working in the local ring case?
-4. Overleaf?
-5. Can one "see into" the while loop for debugging purposes?
-6. If I start using some weird ring, is instance(n, ZZ) ever going to cause problems?
-7. Is there a length of abelian group function in M2?
+4. Can one "see into" the while loop for debugging purposes?
+5. Is there a length of abelian group function in M2?
+
+6. methods leadTerm
+   code 0
+
+leadTerm RingElement := RingElement => (f) -> someTerms(f,0,1)
+someTerms(RingElement,ZZ,ZZ) := RingElement => (f,i,n) -> new ring f from rawGetTerms(numgens ring f,raw f,i,n+i-1)
+Why is the enginering.m2 file spelled wrong?
+
+7. hilbertFunctionRing = memoize(() -> QQ(monoid [getSymbol "i"]))
+   where can I see the tests for hilbertPolynomial?
+
+
 
 M ZZ/6
 0 -> 3M -> M
