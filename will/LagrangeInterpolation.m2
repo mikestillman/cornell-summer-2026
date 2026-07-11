@@ -48,14 +48,14 @@ lagrangeInterpolation(List) := RingElement => (L) -> (
 
 matchPolynomial = method()
 matchPolynomial(List) := List => (L) -> (
-    InitialList = L;
-    Length = #L;
+    InitialList := L;
+    Length := #L;
     while #L >= 2 do (
         if take(L,-2) == {0,0} then (
-            d = Length - #L - 1; -- this will be the degree of the output polynomial
+            d := Length - #L - 1; -- this will be the degree of the output polynomial
             -- if we say the zero polynomial have degree -1
-            ListofPoints = for i from Length - d - 2 to Length-1 list {i,InitialList#i};
-            P = lagrangeInterpolation(ListofPoints);
+            ListofPoints := for i from Length - d - 2 to Length-1 list {i,InitialList#i};
+            P := lagrangeInterpolation(ListofPoints);
             return {P, for i from 0 to Length - 1 list P(i)}
         )
         else L = succDiff(L);
