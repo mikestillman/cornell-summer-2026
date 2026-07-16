@@ -100,6 +100,27 @@ Repeating this procedure gives the \textit{free resolution of $M$}
 This is called 
 ``Free'' since every object in the chain (except the final one) is a free
 module. 
+
+Here's another way to think about this iterative process, which may help
+with the computations. $M$ is finitely generated with $n_1$ generators and so we start with the exact
+sequence
+\[
+    R^{n_1} \to M \to 0.
+\]
+Now we ask for the generators of $\ker(R^{n_1} \to M)$, say this has $n_2$
+generators. We can then extend our exact
+sequence 
+\[
+    R^{n_2} \to R^{n_1} \to M \to 0
+\]
+Now, ask for the generators of $\ker(R^{n_2} \to R^{n_1})$, 
+\[
+    R^{n_3} \to R^{n_2} \to R^{n_1} \to M \to 0. 
+\]
+Then continue this process indefinitely, or until $\ker(R^{n_{k+1}} \to R^{k}) =
+0$ is the zero module.
+\wg{Is it clear that this kernel module should be finitely generated?}
+
 Below we will compute some examples of free resolutions of various modules.
 \footnote{
 \wg{I am curious to note some basic thoery here. I suppose it is clear that a 
@@ -175,12 +196,56 @@ $R$. One can check these examples in Macaulay2 with the code
         R^1 \xrightarrow{1 \to \bar 1}
         M \to 0. 
     \]
-    Moreover the kernel module $\ker(R^2 \to (x^2, y^2)) = 0$ and so we are
-    done. The above sequence is the free resolution for $M = R/(x^2, y^2)$. 
+    Moreover the kernel module $\ker(R^2 \to (x^2, y^2)) = 0$
+    and so we are
+    done. 
+    Put another way $\ker(R^1 \to R^2) = 0$. 
+    The above sequence is the free resolution for $M = R/(x^2, y^2)$. 
 \end{example}
 
 \begin{example}
-    
+    Let $R = k[x,y]$ and $M = R/(x,y)^2$. Note $(x,y)^2 = (x^2, xy, y^2)$. 
+    Now $M$ is generated as an $R$-module by $1 \in M$ but we have the relations
+    $x^2 = xy = y^2 = 0$. This gives the presentation
+    \[
+        R^3 \xrightarrow{\bmat{x^2 & -xy & y^2}} 
+        R^1 \xrightarrow{1 \to \bar 1} 
+        M \to 0.
+    \]
+    Now consider the kernel module $\ker(R^1 \to M) = (x^2,xy,y^2)$. 
+    Following the previous example, this has three generators $x^2, xy, y^2$. 
+    We want to understand the kernel module $\ker(R^3 \to (x^2, xy, y^2))$.
+    If $(a,b,c) \in R^3$ then this triple is in the kernel module when
+    $ax^2 + bxy + cy^2 = 0$. 
+    Notice that the two vectors $(y, -x, 0)$ and $(0, y, -x)$ are both vectors
+    in the kernel module. We claim that these are in fact an $R$-basis of
+    $\ker(R^3 \to (x^2, xy, y^2))$.
+    The argument we have is a direct computation and is a little tedious. For
+    clarity here, we will put the details of this argument in the appendix.
+
+    Now, continuing the process, we want to understand 
+    $\ker(R^2 \to R^3)$ where $R^2 \to R^3$ is the map 
+    $(a,b) \mapsto (ay, -ax + by, -bx)$.
+    That is, we want to understand for which $[a, b]^T \in R^2$ we have
+    \[
+        \bmat{ay \\ -ax + by \\ -bx} = \bmat{0 \\ 0 \\ 0}. 
+    \]  
+    However, since $R$ is a domain, we have that this is only satisfied by $a =
+    b = 0$. Thus, $\ker(R^2 \to R^3) = 0$ and we are done. Our free resolution
+    of $M = R/(x,y)^2$ 
+    is thus
+    \[
+        R^3 \xrightarrow{\bmat{y & 0 \\ -x & y \\ 0 & -x}} 
+        R^2 \xrightarrow{\bmat{x^2 & xy & y^2}}
+        R^1 \xrightarrow{1 \mapsto \bar 1}
+        M \to 0.
+    \]
 \end{example}
+
+\wg{I think we have written out the examples we wanted to discuss.
+We changed our understanding of how the free resolution is computed, and so we
+should go back through our examples and make sure that the verbiage is
+consistent. We also need to write the appendix with the calculation that we
+promised.}
 
 \end{document}
