@@ -126,15 +126,20 @@ Then continue this process indefinitely, or until $\ker(R^{n_{k+1}} \to R^{n_k})
 the kernels to be finitely generated. This is only necessarily true if $R$ is
 Noetherian.
 }.
-\wg{Need to double check that this is equivalent to the first construction given.}
 
 Below we will compute some examples of free resolutions of various modules.
 
 \section{Examples}
 These examples are sorted into an order of increasing complexity. However, 
 in all the following examples, $R$ is a polynomial ring and $M$ is a quotient of
-$R$. One can check these examples in Macaulay2 with the code
-\wg{what's the use of verbatim}
+$R$. One can check these examples in Macaulay2 with the code, for example, 
+\begin{verbatim}
+kk = ZZ/32003;
+R = kk[x,y];
+I = ideal(x^2, y^2);
+M = R^1/I;
+res M
+\end{verbatim}
 
 \begin{example}
     Let $R = k[x]$ and $M = R/(x^n)$ for some fixed $n$. 
