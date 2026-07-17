@@ -105,3 +105,11 @@ LL = prepend(0,accumulate(plus,0,L))
 assert(LL == {0,3,12,30,57,93,138})
 matchPolynomial(LL) 
 -- the result should be 9/2*x^2 - 9/2*x + 3 which will not be the Hilbert Samuel polynomial.
+
+profile(time hilbertSamuelFunction(module Ilocal,0,6))
+profileSummary
+
+path
+
+methods localRing
+code 0

@@ -17,7 +17,6 @@ export {"lagrangeBasis", "lagrangeInterpolation", "matchPolynomial"}
 
 -* Code section *-
 
-restart 
 LagrangePolynomialRing = memoize(() -> QQ(monoid [getSymbol "x"]))
 
 succDiff = (L) -> (
@@ -108,15 +107,25 @@ SeeAlso
 -- this makes it sound like equality checking is not defined for one of the
 -- types?
 TEST /// -* Positive tests for lagrangeBasis *-
-    use QQ[z]
-    assert(sub(lagrangeBasis({3,6},1),{(ring lagrangeBasis({3,6},1))_0 => z}) == 1/3*z - 1)
-    assert(sub(lagrangeBasis({3,6},0),{(ring lagrangeBasis({3,6},0))_0 => z}) == -1/3*z + 2)
-    assert(sub(lagrangeBasis({-1,0,1},1),{(ring lagrangeBasis({-1,0,1},1))_0 => z}) == -z^2 + 1)
+    x = (ring lagrangeBasis({0,1},0))_0
+    assert(lagrangeBasis({3,6},1) == 1/3*x - 1)
+    assert(lagrangeBasis({3,6},0) == -1/3*x + 2)
+    assert(lagrangeBasis({-1,0,1},1) == -x^2 + 1)
+
+
+
+
+
+
+--    use QQ[z]
+--    assert(sub(lagrangeBasis({3,6},1),{(ring lagrangeBasis({3,6},1))_0 => z}) == 1/3*z - 1)
+--    assert(sub(lagrangeBasis({3,6},0),{(ring lagrangeBasis({3,6},0))_0 => z}) == -1/3*z + 2)
+--    assert(sub(lagrangeBasis({-1,0,1},1),{(ring lagrangeBasis({-1,0,1},1))_0 => z}) == -z^2 + 1)
 ///
 
---TEST 
+TEST 
 /// -* Positive tests for lagrangeInterpolation *-
-    use QQ[x]
+    x = (ring lagrangeBasis({0,1},0))_0
     
     assert(lagrangeInterpolation({{0,0},{1,1}}) == x)
     assert(lagrangeInterpolation({{0,0},{1,1},{2,2}}) == x)
@@ -129,16 +138,12 @@ TEST /// -* Positive tests for lagrangeBasis *-
 /// 
 
 
---TEST 
+TEST 
 /// -* Positive tests for matchPolynomial *-
-    use QQ[x]
+    x = (ring lagrangeBasis({0,1},0))_0    
+
     assert(matchPolynomial({1,2,3,4,5,6}) == {x+1, {1,2,3,4,5,6}})
-    assert(matchPolynomial({1,4,9,16,25}) == {x^2, {0,1,4,9,16,25}})
-    
-    -- for this command, i get something different than what the comment says
-    matchPolynomial({1,2,3,4,9,16,25,36})
-    -- should return {x^2, {1,0,1,4,9,16,25,36}}
-    
+    assert(matchPolynomial({1,4,9,16,25}) == {x^2 + 2*x + 1, {1,4,9,16,25}})
     assert(matchPolynomial({10,20,30,40,41,42,43,44}) == {x+37, {37,38,39,40,41,42,43,44}})
 ///
 

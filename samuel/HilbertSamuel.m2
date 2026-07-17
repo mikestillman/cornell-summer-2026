@@ -246,6 +246,9 @@ TODO:
 
 6. Implement a function that compute a composition series for a module of finite length.
    Implement a way to check if a module is of finite length.
+
+  
+
 7. Understand the in(I) procedure.
 8. Understand localLengthHook and localMinimalPresentationHook 
    and work out some examples.
@@ -287,3 +290,12 @@ M ZZ/6
 
 QQ[x]/(x^2+1)
 
+x ?? 13
+x.cache ?? 13
+
+M = coker vars (QQ[x])
+M.cache
+peek M.cache 
+M.cache.length ??= 13
+peek M.cache 
+M.cache.length ??= 15
