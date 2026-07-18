@@ -17,7 +17,7 @@ export {"lagrangeBasis", "lagrangeInterpolation", "matchPolynomial"}
 
 -* Code section *-
 
-LagrangePolynomialRing = memoize(() -> QQ(monoid [getSymbol "x"]))
+lagrangePolynomialRing = memoize(() -> QQ(monoid [getSymbol "x"]))
 
 succDiff = (L) -> (
     if not instance(L, List) then error "Input must be a list";
@@ -30,6 +30,7 @@ lagrangeBasis(List, ZZ) := RingElement => (L, n) -> (
     if n < 0 or n >= #L then error "Second input must be between 0 and the length of the list";
     -- needs to check the x-coordinates are distinct
     -- maybe use delete function and check the deleted list has exactly one less
+    x := (lagrangePolynomialRing())_0;
     product apply (drop(L,{n,n}), a -> (x - a) / (L#n - a))
 )
 
