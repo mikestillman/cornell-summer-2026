@@ -1,0 +1,154 @@
+\documentclass{article}
+\usepackage{amsfonts, amsmath, amsthm, amssymb, enumerate, fancyhdr, gensymb, lastpage, mathtools, parskip, graphicx}
+\usepackage{xcolor, tikz-cd}
+\usepackage[a4paper, total={6in, 8in}]{geometry}
+\usepackage{setspace}
+
+\usepackage[OT2,T1]{fontenc}
+\DeclareSymbolFont{cyrletters}{OT2}{wncyr}{m}{n}
+\DeclareMathSymbol{\Sha}{\mathalpha}{cyrletters}{"58}
+
+% Theorem environments
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{corollary}[theorem]{Corollary}
+
+% Definition-style environments
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{example}[theorem]{Example}
+
+% Remark-style environments
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+
+
+%\onehalfspacing
+\setstretch{1.3}
+\newcommand{\wg}[1]{\textcolor{violet}{#1}}
+
+%\renewcommand{\C}{\mathcal C}
+\newcommand{\Z}{\mathbb Z}
+\newcommand{\Ztwo}{\mathbb Z / 2\mathbb Z}
+\newcommand{\Ztwosq}{(\mathbb Z / 2 \mathbb Z)^2}
+\newcommand{\GalK}{G_{\bar K / K}}
+\newcommand{\Q}{\mathbb Q}
+\newcommand{\R}{\mathbb R}
+\newcommand{\im}{\text{im }}
+\renewcommand{\div}{\, \vert \,}
+\newcommand{\F}{\mathbb F}
+\newcommand{\EQW}{E'(\Q)/2E(\Q)}
+\newcommand{\Etors}{E(\Q)_{\text{tors}}}
+\renewcommand{\F}[1]{\mathbb F_{#1}}
+\newcommand{\Qst}{\mathbb Q(S,2)}
+\newcommand{\Sphi}{S^\phi}
+\newcommand{\Sphihat}{S^{\hat \phi}}
+\newcommand{\bark}{{\bar{k}}}
+\newcommand{\Qsqs}{(\Q^\times)/(\Q^\times)^2}
+\newcommand{\Zn}[1]{\mathbb Z / #1 \mathbb Z}
+
+\newenvironment{wgenv}{\color{violet}}{}
+
+\newcommand{\smalltwobytwo}[4]{
+\left( \begin{smallmatrix*}
+   #1 & #2 \\ #3 & #4 
+\end{smallmatrix*}\right) 
+}
+\newcommand{\bmat}[1]{
+    \begin{bmatrix*}
+        #1
+    \end{bmatrix*}
+}
+
+\title{
+    Composition Series
+}
+\author{Will Gilroy}
+\date{July 2026}
+
+\begin{document}
+\maketitle
+\wg{As of $18th$ July this note is still in rough form}
+
+Let $R$ be a local ring with maximal ideal $\mathfrak m = (y_1, \cdots, y_m)$ and let $M =
+R/I$ be an $R$-module where $I$ is $\mathfrak m$-primary. We want to try and
+construct a composition series for $M$ by iteratively constructing a chain where the partial
+quotient is $R/I'$ where $I' = (\text{gens } I, y_1)$. Let's try to work out how
+this might work with an example
+
+Let $R = k[x]_{(x)}$ and $M = R/(x^3)$. 
+The correspondence theorem gives us that the submodules of $M$ correspond to the
+ideals $0, (x^2), (x^3)$, giving the submodules $0/(x^3), (x^2)/(x^3)$, and
+$(x^3)/(x^3)$. 
+
+\wg{Mike was giving us a procedure so that the first partial quotient would 
+be something like $R/(x^3, x) = R/(x)$ which is now modding out by the maximal 
+ideal and the procedure would terminate. I think we would then get the wrong
+length by this procedure, but I admit I do not totally recall the 
+initial chain that we would start with.}
+\wg{Perhaps we can try this example again with $R = k[x,y]_{(x,y)}$ and $R/(x^2,
+y^2)$?}
+
+\appendix
+\subsection{Correspondence Theorem and Submodules of $R/I$.}
+A quick comment on how the correspondence theorem gives us the 
+submodules of $R/(x^3)$. Recall the correspondence theorem for groups:
+if $G$ is a group and $N \leq G$ a normal subgroup then there is a bijection
+\[
+    \{ \text{Subgroups of $G$ containing $N$} \} \leftrightarrow
+    \{ \text{Subgroups of $G/N$}\}.
+\]
+This correspondence theorem extends to $R$ modules in the following way.
+Let $R$ be a ring, viewed as an $R$ module, and let $N$ an submodule of $R$. 
+Then the quotient $R$-module $R/N$ is in particular a quotient group of $R$.
+Applying the correspondence theorem for groups gives us that the subgroups (and
+thus the only contenders for the submodules of $R/N$)
+of $R/N$ are $\{R/L : N \subset L \leq R \}$. We can extend all of these
+subgroups to $R$ submodules of $R/N$ in the usual way and we thus have the
+following bijection
+\[
+    \{\text{Submodules of $R$ containing $N$}\} \leftrightarrow
+    \{\text{Submodules of $R/N$}\}. 
+\]
+
+In particular, if $M = R/I$ where $I \leq R$ is an ideal of $R$ applying this
+bijection gives
+\[
+    \{\text{Ideals of $R$ containing $I$}\} \leftrightarrow
+    \{\text{Submodules of $R/I$}\},
+\]
+noting that the submodules of $R$ are exactly its ideals.
+
+\begin{example}
+Let's apply this to the example in the main body above, let $R = k[x]$ and $M =
+k[x]/(x^3)$. To construct a chain of $M$ we need to understand its submodules.
+The submodules of $M$ are in bijection with the ideals of $R$ containing
+$(x^3)$. These ideals are exactly $(1), (x), (x^2), (x^3)$. Applying the
+bijection map \wg{(which we did not describe)} gives the submodules
+\[
+    R/(x^3),(x)/(x^3), (x^2)/(x^3), (x^3)/(x^3),
+\]
+where each of these quotients are the quotient modules 
+(note for example that the ideal $(x)$ is a subgroup of $(x^3)$ when viewed
+purely as additive groups.)
+we can then construct a composition series
+\begin{align*}
+    (x^3)/(x^3) = 0 \subseteq (x^2)/(x^3) \subseteq (x)/(x^3) \subseteq R/(x^3) = (1)/(x^3).
+\end{align*}
+Since we have enumerated all of the submodules of $R/(x^3)$ we can see that
+there is no longer chain which can be constructed (in particular, we have a
+chain which has used all of the submodules) and so the above chain is in fact a
+composition series (one can also check that the partial quotients are simple if
+one prefers). Thus we have shown that the length 
+\[
+    \ell_{R}(R/(x^3)) = 3.
+\]
+Note that following a similar argument shows that $\ell_{R}(R/(x^n)) = n$. 
+\wg{I think we can also further note that, since localisation is an exact
+functor, the above chain remains a chain and so the length should not change 
+under localising at $(x)$. We should work out the details for this.}
+\end{example}
+
+
+\end{document}
