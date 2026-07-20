@@ -1,12 +1,11 @@
 restart
-
 compositionSeries = method()
 compositionSeries(Module) := List => (M) -> (
     -- let x_1..x_n be the generators of M
         -- define the module M first, then 
-        C := res M 
-        L := dd^C_1
-        entries L
+        C := res M;
+        L := dd^C_1;
+        entries L;
     -- first have a chain of submodules given by 
     -- 0 \subset (x_1) \subset (x_1,x_2) \subset ... \subset (x_1,...,x_n) = M
     -- then for each i, the quotient (x_1,...,x_i)/(x_1,...,x_{i-1}) 
@@ -25,20 +24,88 @@ compositionSeries(Module) := List => (M) -> (
     -- \subset (lift of R/J_1*((x_1,x_2)/(x_1)) to (x_1,x_2))...
 )
 
+
+
+
+compositionSeries = method()
 compositionSeries(Ideal) := List => (I) -> (
-    -- check if the quotient R/I is of finite length
-    R := ring I
-    -- right now, R should be a polynomial ring over a field and I should be a monomial ideal
-    n := numgens R
-    L := {0}
-    for i from 0 to n-1 do (
-        k := 0
-        while not isSubset(ideal(R_0)^k,I) do (
-            k = k+1; 
-            append(L,R/ideal(R_0)^k)
-        )
-    )
+    -- TODO: check if the quotient R/I is of finite length
+    R := ring I;
+    m := radical I;
+    L := (entries gens m)#0;
+    n := #L;
+    k := R/m;
+    output := {I};
+    while numcols(basis(prune(R/I ** k))) > 1 do (
+        for i from 0 to n-1 do (
+            J := (I:L#i);
+            if not isMember(L#i,I) and not J/I == 0 then (
+                -- TODO: find out if J always contain I properly, i.e. is it always true that J/I is nonzero? 
+                if numcols(basis(prune(J/I ** k))) == 1 then (  -- need to check this is a simple module, but the current check does not work. 
+                                                                -- for example, if I = ideal(x^2,y^2) and J = ideal (x,y^2) in R = QQ[x,y], then numcols(basis(prune(J/I ** k))) = 1, 
+                                                                -- but J/I is not simple because (x^2,y^2) \subset (x^2,xy,y^2) \subset (x,y^2).
+                                                                -- might be able to use hilberFunction in nice situation to count dimension over coefficient ring.
+                    output = append(output, J);
+                    I = J;
+                    break
+                )
+                else error "not implemented"
+                -- TODO: in this case, J/I is not simple 
+                -- should "call the function recursively" to fill out a longest chain of submodule of J/I
+                -- I don't know enough coding to do this yet
+            );
+        );
+    );
+    return output
 )
+
+-- working example
+R = QQ[x]
+I = ideal(x^3)
+I = ideal(x^10)
+compositionSeries(I)
+#compositionSeries(I)  -- length
+
+-- non working example
+R = QQ[x,y]
+I = ideal(x^2,y^2)
+compositionSeries(I)
+#compositionSeries(I)
+-- should be length 4 and the output of compositionSeries(I) should be 
+{ideal(x^2,y^2), ideal(x^2,x*y,y^2), ideal(x,y^2), ideal(x,y)}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 -- experiment with extracting info from a resolution of a module
