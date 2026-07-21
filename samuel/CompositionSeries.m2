@@ -56,7 +56,8 @@ compositionSeries(Ideal) := List => (I) -> (
     -- TODO: think about intersection of primary ideals
         -- Conjecture: 
         -- length of intersection of primary ideals is equal to the sum of lengths of each primary ideal.
-        -- Sketch of Idea
+        -- Sketch of Idea:
+        -- Hopefully R/(q_1 \cap q_2) is isomorphic to R/q_1 \times R/q_2?
     R := ring I;
     m := radical I;
     if not isPrime m then error "non primary ideal not implemented";
