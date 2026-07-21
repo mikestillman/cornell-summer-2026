@@ -27,37 +27,85 @@ compositionSeries(Module) := List => (M) -> (
 
 
 
+isMaximal = method()
+isMaximal(Ideal) := Boolean => (I) -> (
+    R := ring I;
+    if isPrime I and dim(R/I) == 0 then true else false
+)
+
+isSimple = method()
+isSimple(Module) := Boolean => (M) -> (
+    -- Theorem: A R-module is simple if and only if it is isomorphic to R/m for some maximal ideal m.
+    R := ring M;
+    N := prune M;
+    c := (if N.?generators then 1 else 0) + 2 * (if N.?relations then 1 else 0);
+    if not c == 2 then return false;  -- c = 2 means N is a quotient
+    if not numgens N == 1 then return false;  
+    -- I := ideal image N.relations;  -- this does not work for some reason.
+                                      -- for example, take R = ZZ/101[x,y]
+                                      -- M = ideal(x,y^2)/ideal(x^2,y^2)   
+                                      -- N = prune M
+                                      -- image N.relations and (entries N.relations)#0 is very similar
+    I := ideal((entries N.relations)#0);
+    if isMaximal I then true else false
+)
+
 compositionSeries = method()
 compositionSeries(Ideal) := List => (I) -> (
     -- TODO: check if the quotient R/I is of finite length
+    -- TODO: think about intersection of primary ideals
+        -- Conjecture: 
+        -- length of intersection of primary ideals is equal to the sum of lengths of each primary ideal.
+        -- Sketch of Idea
     R := ring I;
     m := radical I;
+    if not isPrime m then error "non primary ideal not implemented";
+    if not isMaximal m then error "input is not an ideal of finite colength"; 
+                                  -- Theorem: Artinian ring have Krull dimension 0. 
     L := (entries gens m)#0;
     n := #L;
     k := R/m;
     output := {I};
-    while numcols(basis(prune(R/I ** k))) > 1 do (
+    while not I == m do (
         for i from 0 to n-1 do (
             J := (I:L#i);
             if not isMember(L#i,I) and not J/I == 0 then (
                 -- TODO: find out if J always contain I properly, i.e. is it always true that J/I is nonzero? 
-                if numcols(basis(prune(J/I ** k))) == 1 then (  -- need to check this is a simple module, but the current check does not work. 
-                                                                -- for example, if I = ideal(x^2,y^2) and J = ideal (x,y^2) in R = QQ[x,y], then numcols(basis(prune(J/I ** k))) = 1, 
-                                                                -- but J/I is not simple because (x^2,y^2) \subset (x^2,xy,y^2) \subset (x,y^2).
-                                                                -- might be able to use hilberFunction in nice situation to count dimension over coefficient ring.
+                if isSimple(J/I) then (
                     output = append(output, J);
                     I = J;
                     break
                 )
-                else error "not implemented"
-                -- TODO: in this case, J/I is not simple 
-                -- should "call the function recursively" to fill out a longest chain of submodule of J/I
-                -- I don't know enough coding to do this yet
+                else (
+                    -- this mimic the behavior in a previous version but it is wrong
+                    output = append(output, J);
+                    I = J;
+                    break
+
+                    -- this is what I plan to do, but it needs more work
+                    -- after pruning and getting a chain of ideal, need to use pruning map to 
+                    -- transfer the ideal back to ideals in J containing I
+                    -- although it does seems to get length correctly
+                    
+                    --M := prune(J/I);
+                    --K := ideal((entries M.relations)#0);
+                    --output = join(output, compositionSeries(K));
+                    --I = J;
+                    --break
+                );
+                
             );
         );
     );
     return output
 )
+-- I was told its bad to have to many nested loops,
+-- but I was not told how to avoid it.
+
+
+
+
+
 
 -- working example
 R = QQ[x]
@@ -77,6 +125,13 @@ compositionSeries(I)
 
 
 
+-- some experimentation
+J = ideal(x,y^2)
+isSimple(J/I)
+M = prune(J/I)
+K = ideal((entries M.relations)#0)
+compositionSeries(K)
+F = M.cache.pruningMap
 
 
 
@@ -126,30 +181,3 @@ isSubset((ideal image (toList L_0)#0)*M,M)
 (ideal matrix dd^(res M)_1_0)
 
 R/ideal image dd^(res (ideal matrix dd^(res M)_1_0))_1
-isField oo
-
-
-R = QQ[x,y,z]
-M = R^2
-
-I = ideal(x-1,y-1,z-1)
-R/I^3
-R/ideal(x^2,x*y,x*z,y^2,y*z,z^2)
-basis oo
-basis(R/ideal(x^2,x*y,x*z,y^2,y*z,z^2))
-basis(R/ideal(x,x^2,x*y,x*z,y^2,y*z,z^2))
-
-?leadTerm
-methods leadTerm
-code 0
-
-leadTerm(x^2+y^4)
-degree leadTerm(x^2+y^4)
-
-leadTerm RingElement := RingElement => (f) -> someTerms(f,0,1)
-someTerms(RingElement,ZZ,ZZ) := RingElement => (f,i,n) -> new ring f from rawGetTerms(numgens ring f,raw f,i,n+i-1)
-
-leadTerm(x^2+y^4) = someTerms(x^2+y^4,0,1)
-someTerms(x^2+y^4,0,1)= new ring x^2+y^4 from rawGetTerms(numgens ring(x^2+y^4),raw(x^2+y^4),0,0)
-(x^2+y^4)#0
-someTerms(x^2+y^4,0,1) = new ring x^2+y^4 from rawGetTerms(3,y4+x2,0,0)
