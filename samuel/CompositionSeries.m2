@@ -52,20 +52,21 @@ isSimple(Module) := Boolean => (M) -> (
 
 compositionSeries = method()
 compositionSeries(Ideal) := List => (I) -> (
-    -- TODO: check if the quotient R/I is of finite length
     -- TODO: think about intersection of primary ideals
         -- Conjecture: 
         -- length of intersection of primary ideals is equal to the sum of lengths of each primary ideal.
         -- Sketch of Idea:
         -- Hopefully R/(q_1 \cap q_2) is isomorphic to R/q_1 \times R/q_2?
     R := ring I;
+    if dim(R/I) =!= 0 then error "Input is not an ideal of finite colength";
+        -- Theorem: A ring is Artinian if and only if it is Noetherian and has Krull dimension 0.
+        -- Question: Can one define a non Noetherian ring in Macaulay2? If so, is there a way to check if a ring is Noetherian?
     m := radical I;
     if not isPrime m then error "non primary ideal not implemented";
     if not isMaximal m then error "input is not an ideal of finite colength"; 
-                                  -- Theorem: Artinian ring have Krull dimension 0. 
+        -- Theorem: Artinian ring have Krull dimension 0. 
     L := (entries gens m)#0;
     n := #L;
-    k := R/m;
     output := {I};
     while not I == m do (
         for i from 0 to n-1 do (
@@ -73,13 +74,13 @@ compositionSeries(Ideal) := List => (I) -> (
             if not isMember(L#i,I) and not J/I == 0 then (
                 -- TODO: find out if J always contain I properly, i.e. is it always true that J/I is nonzero? 
                 if isSimple(J/I) then (
-                    output = append(output, J);
+                    output = append(output,J);
                     I = J;
                     break
                 )
                 else (
                     -- this mimic the behavior in a previous version but it is wrong
-                    output = append(output, J);
+                    output = append(output,J);
                     I = J;
                     break
 
@@ -93,8 +94,8 @@ compositionSeries(Ideal) := List => (I) -> (
                     --output = join(output, compositionSeries(K));
                     --I = J;
                     --break
+                    
                 );
-                
             );
         );
     );
@@ -102,8 +103,6 @@ compositionSeries(Ideal) := List => (I) -> (
 )
 -- I was told its bad to have to many nested loops,
 -- but I was not told how to avoid it.
-
-
 
 
 
@@ -126,40 +125,46 @@ compositionSeries(I)
 
 
 
--- some experimentation
-J = ideal(x,y^2)
-isSimple(J/I)
-M = prune(J/I)
-K = ideal((entries M.relations)#0)
-compositionSeries(K)
-F = M.cache.pruningMap
 
 
+-- a different approach that seems to work decently well.
+-- but I feel like it is less general than Mike's suggestion.
+compositionSeriesTest = method()
+compositionSeriesTest(Ideal) := List => (I) -> (
+    R := ring I;
+    m := radical I;
+    output := {I};
+    n := 0;
+    while not isSubset(m^(n+1),I) do (
+        n = n + 1;
+    );
+    L := flatten entries gens m^n;
+    for i from 0 to #L-1 do (
+        K := trim(ideal(L#i) + I);
+        if isSimple(K/I) then (
+            output = append(output,K);
+            I = K;
+            break
+        );
+    );
+    if not I == m then (
+        output = join(drop(output, -1), compositionSeriesTest(I));
+    );
+    return output
+)
 
+-- working examples
+R = QQ[x]
+I = ideal(x^3)
+compositionSeriesTest(I)
 
+R = QQ[x,y]
+I = ideal(x^2,y^2)
+compositionSeriesTest(I)
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+R = QQ[x,y,z]
+I = ideal(x^2,y^2,z^2)
+compositionSeriesTest(I)
 
 
 
