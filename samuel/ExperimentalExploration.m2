@@ -189,6 +189,8 @@ hilbertSamuelFunctionTest (Module, ZZ, ZZ)        := List => (M, n0, n1) -> (
     Lm := RP.maxIdeal;
     R := ring Lm;
     k := frac(R/Lm);  -- same as residue field because (R_p/p*R_p) = (R/p)_0 = frac(R/p)
+                      -- localization is an exact functor 
+                      -- Apply localize at Lm to the exact sequence 0 -> Lm -> R -> R/Lm -> 0
     M = m^n0 * M;
     LM := minimalPresentation liftUp(localMinimalPresentationHookCopy M);
     -- maybe trim also works?
@@ -199,6 +201,9 @@ hilbertSamuelFunctionTest (Module, ZZ, ZZ)        := List => (M, n0, n1) -> (
         j
         )
     )
+--fact: let M be an A module. Then M ** A/I = M/IM
+--k = R/Lm 
+--LM ** k = LM ** R/Lm = LM/(Lm*LM)
 
 kk = ZZ/101
 R = kk[x,y,z]
@@ -222,11 +227,13 @@ time hilbertSamuelFunctionTest(module Ilocal,0,6)
 time hilbertSamuelFunctionTest(module Ilocal,7,8)           
 time hilbertSamuelFunctionTest(module Ilocal,9,10)          
 time hilbertSamuelFunctionTest(module Ilocal,11,12)         
-time hilbertSamuelFunctionTest(module Ilocal,0,20)          
+time hilbertSamuelFunctionTest(module Ilocal,10,20)          
 
 profile(time hilbertSamuelFunction(module Ilocal,0,6))
 profile(time hilbertSamuelFunctionTest(module Ilocal,0,12))
 profileSummary
+-- Quesition: how to reset profileSummary?
+
 
 -- Another example that shows the new implementation gives the same result
 N = cokernel matrix{{random(2,R)},{random(2,R)},{random(2,R)},

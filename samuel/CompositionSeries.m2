@@ -152,6 +152,10 @@ compositionSeriesTest(Ideal) := List => (I) -> (
     );
     return output
 )
+compositionSeriesTest(Ideal,ZZ)...
+
+
+
 
 -- working examples
 R = QQ[x]
@@ -166,6 +170,11 @@ R = QQ[x,y,z]
 I = ideal(x^2,y^2,z^2)
 compositionSeriesTest(I)
 
+R = QQ[x,y]
+I = ideal((x-1)^2,(y-1)^2)
+
+-- Question: is it true that in k[x_1..x_n], all (x_1..x_n)-primary ideal 
+-- are of the form (x_1^a_1,...,x_n^a_n) for some a_i > 0?
 
 
 
