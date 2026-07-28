@@ -182,7 +182,8 @@ localMinimalPresentationHookCopy Module := Module => opts -> M -> (
         );
     )
 hilbertSamuelFunctionTest = method()
-hilbertSamuelFunctionTest (Module, ZZ, ZZ)        := List => (M, n0, n1) -> (
+hilbertSamuelFunctionTest (Ideal , ZZ, ZZ) := List => (I, n0, n1) -> hilbertSamuelFunctionTest(module I,n0,n1)
+hilbertSamuelFunctionTest (Module, ZZ, ZZ) := List => (M, n0, n1) -> (
     RP := ring M;
     if class RP =!= LocalRing then error "expected objects over a local ring";
     m := max RP;
@@ -191,12 +192,14 @@ hilbertSamuelFunctionTest (Module, ZZ, ZZ)        := List => (M, n0, n1) -> (
     k := frac(R/Lm);  -- same as residue field because (R_p/p*R_p) = (R/p)_0 = frac(R/p)
                       -- localization is an exact functor 
                       -- Apply localize at Lm to the exact sequence 0 -> Lm -> R -> R/Lm -> 0
-    M = m^n0 * M;
     LM := minimalPresentation liftUp(localMinimalPresentationHookCopy M);
-    -- maybe trim also works?
+    -- does the minimalPresentation do anything?
+    -- is it expensive to take a minimalPresentation when generators and relations are already minimal?
+    for i from 1 to n0 do LM = minimalPresentation(Lm * LM);
+    -- this is just LM = Lm^n0 * M but faster
     for i from n0 to n1 list (
         if debugLevel >= 1 then printerr("computing HSF_", toString i);        
-        j := numcols(basis(LM ** k));
+        j := numgens(LM ** k);
         if i < n1 then LM = minimalPresentation(Lm * LM);  -- trim?
         j
         )
@@ -223,17 +226,17 @@ time hilbertSamuelFunction(module Ilocal,7,8)           -- took my laptop about 
 time hilbertSamuelFunction(module Ilocal,9,10)          -- took my laptop about 30 seconds in 2026
 time hilbertSamuelFunction(module Ilocal,11,12)         -- took my laptop about 90 seconds in 2026
 
+
 time hilbertSamuelFunctionTest(module Ilocal,0,6)           
 time hilbertSamuelFunctionTest(module Ilocal,7,8)           
 time hilbertSamuelFunctionTest(module Ilocal,9,10)          
 time hilbertSamuelFunctionTest(module Ilocal,11,12)         
-time hilbertSamuelFunctionTest(module Ilocal,10,20)          
+time hilbertSamuelFunctionTest(module Ilocal,0,20)          
 
 profile(time hilbertSamuelFunction(module Ilocal,0,6))
 profile(time hilbertSamuelFunctionTest(module Ilocal,0,12))
 profileSummary
 -- Quesition: how to reset profileSummary?
-
 
 -- Another example that shows the new implementation gives the same result
 N = cokernel matrix{{random(2,R)},{random(2,R)},{random(2,R)},
@@ -241,24 +244,5 @@ N = cokernel matrix{{random(2,R)},{random(2,R)},{random(2,R)},
 Nlocal = N ** Rlocal
 time hilbertSamuelFunction(module Nlocal,0,5)           -- about 25s depending on rng
 time hilbertSamuelFunctionTest(module Nlocal,0,5)       -- as low as 0.05s
-time hilbertSamuelFunctionTest(module Nlocal,0,12)      -- about 8s depending on rng
+time hilbertSamuelFunctionTest(module Nlocal,0,12)      -- about 1s depending on rng
 
-
--- one comment about the new implementation:
-
--- you might notice time hilbertSamuelFunctionTest(module Ilocal,10,20) 
--- is much slower than time hilbertSamuelFunctionTest(module Ilocal,0,20)
--- even though it is computing fewer values.
-
--- I think the reason is we have a large n0, 
--- so when we take a minimal presentation of m^n0 * M,
--- there could be a lot of things to simplify.
-
--- It might be faster to take minimal presentation of M first,
--- then take m * (minimal presentation of M)
--- then take m * (minimal presentation of m * (minimal presentation of M)) and so on.
--- worth looking into if Mike think this is useful.
-
-R = QQ[x]
-I = ideal(x^3+x^2)
-primaryDecomposition(I)
