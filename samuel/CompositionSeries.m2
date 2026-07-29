@@ -30,11 +30,13 @@ compositionSeries(Module) := List => (M) -> (
 isMaximal = method()
 isMaximal(Ideal) := Boolean => (I) -> (
     R := ring I;
-    if isPrime I and dim(R/I) == 0 then true else false
+    isPrime I and dim(R/I) == 0
 )
 
 isSimple = method()
 isSimple(Module) := Boolean => (M) -> (
+    -- TODO: fix the case when R is a field.
+    -- TODO: add a check if R is a polynomial ring because prune might not work in general.
     -- Theorem: A R-module is simple if and only if it is isomorphic to R/m for some maximal ideal m.
     R := ring M;
     N := prune M;
@@ -46,9 +48,45 @@ isSimple(Module) := Boolean => (M) -> (
                                       -- M = ideal(x,y^2)/ideal(x^2,y^2)   
                                       -- N = prune M
                                       -- image N.relations and (entries N.relations)#0 is very similar
-    I := ideal((entries N.relations)#0);
-    if isMaximal I then true else false
+    I := ideal(N.relations);
+    isMaximal I
 )
+
+R = ZZ/101[x,y]
+I = ideal(x^2,y^2)
+J = ideal(x,y^2)
+m = ideal(x,y)
+M = J/I
+N = prune M
+peek N
+N.relations
+ideal(N.relations)
+assert(not isSimple M)
+assert(isSimple(m/J))
+
+ambient N
+ambient M
+gens N
+gens M
+relations M
+relations N
+target relations M === target generators M
+target relations M === ambient M
+target relations N === target generators N
+target relations N === ambient N
+
+M1 = coker(matrix{{x},{1}})
+ambient M1
+ambient(prune M1)
+peek M1
+N1 = prune M1
+peek N1
+peek N1.cache
+peek M1.cache
+N1.cache.pruningMap
+N1.cache.pruningMap^-1
+help minimalPresentation
+
 
 compositionSeries = method()
 compositionSeries(Ideal) := List => (I) -> (
@@ -65,7 +103,7 @@ compositionSeries(Ideal) := List => (I) -> (
     if not isPrime m then error "non primary ideal not implemented";
     if not isMaximal m then error "input is not an ideal of finite colength"; 
         -- Theorem: Artinian ring have Krull dimension 0. 
-    L := (entries gens m)#0;
+    L := m_*;
     n := #L;
     output := {I};
     while not I == m do (
