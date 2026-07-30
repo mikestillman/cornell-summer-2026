@@ -87,8 +87,85 @@ N1.cache.pruningMap
 N1.cache.pruningMap^-1
 help minimalPresentation
 
-
 compositionSeries = method()
+compositionSeries(Ideal) := List => (I) -> (
+    R := ring I;
+    m := radical I;
+    x := m_*;
+    n := #x;
+    
+    M := prepend(I,apply(toList(0..n-1), i -> I + ideal(x_{0..i})));
+    -- M is the list M_i = I + (x_1,...,x_i) for i = 0..n
+    -- #M = n+1
+    Q := apply(toList(0..n-1), i -> M_(i+1)/M_i);
+    -- Q_i is M_(i+1)/M_i
+    -- #Q = n
+    J := apply(toList(0..n-1), i -> (M_i:x_i));
+    -- J_i is the colon ideal (M_i:x_i)
+    -- #J = n
+    output := {I};
+    for i from 0 to n-1 do (
+        if Q_i == 0 then ( 
+            output = output;
+        )
+        else if isSimple(Q_i) then (
+            output = append(output,trim M_(i+1));
+        )
+        else (
+            output = join(output, apply(drop(compositionSeries(J_i),1), K -> trim(M_i + (x_i * K))));
+            output = join(output, {trim M_(i+1)});
+        )    
+    );
+    return output
+)
+
+
+-- working examples
+R = QQ[x]
+I = ideal(x^3)
+compositionSeries(I)
+
+R = QQ[x,y]
+I = ideal(x^2,y^2)
+compositionSeries(I)
+
+R = QQ[x,y,z]
+I = ideal(x^2,y^2,z^2)
+compositionSeries(I)
+
+R = QQ[x,y]
+I = ideal((x-1)^2,(y-1)^2)
+compositionSeries(I)
+
+-- some code to help see what is going on under the hood
+R = QQ[x,y]
+I = ideal(x^2,y^2)
+compositionSeries(I)
+
+L = compositionSeries(I)
+M = L#0
+Q = L#1
+J = L#2
+
+isSimple(Q_0)
+isSimple(Q_1)
+
+L1 = compositionSeries(J_0)
+M1 = L1#0
+Q1 = L1#1
+J1 = L1#2
+
+Q1_0 == 0
+Q1_1 == 0
+isSimple(Q1_1)
+
+
+
+
+
+
+
+
 compositionSeries(Ideal) := List => (I) -> (
     -- TODO: think about intersection of primary ideals
         -- Conjecture: 
