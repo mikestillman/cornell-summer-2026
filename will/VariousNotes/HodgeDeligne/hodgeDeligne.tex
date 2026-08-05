@@ -51,6 +51,7 @@
 \newcommand{\epq}{e^{p,q}}
 \newcommand{\Spec}[1]{\text{Spec}(#1)}
 \newcommand{\OX}{\mathcal O_X}
+\renewcommand{\P}{\mathbb P}
 
 \newenvironment{wgenv}{\color{violet}}{}
 
@@ -153,6 +154,70 @@ properties
     Overall, we have a that $h^{0,0}(X) = 1$ and 
     $h^{p,q}(X) = 0$ for all other $p,q$. 
     The claimed result follows.
+\end{example}
+
+\begin{example}[Union of Points]
+   It follows from the previous example and the decomposition property
+   of $e_X$ that a disjoint union of $n$ points has Hodge-Deligne
+   polynomial $e_X(x,y) = n$. 
+\end{example}
+
+\begin{example}[$P^1_\C$]
+   Performing a similar Hodge computation to the example of the point
+   \wg{Is this how we found this in the meeting?} one can compute that
+   \[
+        e_{\P^1_\C} = 1 + xy. 
+   \]
+\end{example}
+
+\begin{example}[$\mathbb A^1_\C$]
+    We can decompose $P^1 = \mathbb A^1 \amalg \{*\}$ the affine
+    line with a ``point at infinity''.
+    ``point at infinity.'' Since $\mathbb A^1$ is an open subset and
+    $\{*\}$ is a closed point we have 
+    \begin{align*}
+        e_{\mathbb A^1_\C}(x,y) = e_{\P^1_\C} - e_{\{*\}} = xy.
+    \end{align*}
+
+    \wg{I'm a bit confused by this example, becuase the affine line is
+    affine, and so we should expect it to only have have cohomology in
+    degree $0$. That is to say, I would expect that this should be a
+    polynomial only in $y$.}
+\end{example}
+
+\begin{example}[$\mathbb A^n_\C$.]
+    Using the product property of the Hodge-Deligne polynomial we have
+    \[
+        E_{\mathbb A^n} = (xy)^n.
+    \]
+    From this example, we can read off the hodge numbers without
+    needing to do any Hodge comptuations.
+\end{example}
+
+\begin{example}[Algebraic Torii]
+    We can decompose the affine line $\mathbb A^1 = \C^* \amalg \{*\}$
+    and so using the decomposition property of the Hodge-Deligne
+    polynomial we have
+    \[
+        e_{\C^*} = e_{\mathbb A^1_\C} + e_{\{*\}} = xy - 1.
+    \]
+    Then, using the product property we further have that 
+    \[
+        e_{(\C^*)^n}  = (e_{\C^*})^n = (xy-1)^n. 
+    \]  
+\end{example}
+
+\begin{example}[$\P^n_\C$]
+    Recall that we can decompose $\P^n = \C^{n} \amalg \P^{n-1}$
+    and then we can find the Hodge-Deligne polynomial of $\P^n$
+    inductively. Consider,
+    \begin{align*}
+        e_{\P^1} &= 1 + xy \\
+        e_{\P^2} &= e_{\C^2} + e_{\P^1} = (xy)^2 + (1 + xy) \\
+        e_{\P^3} &= e_{\C^3} + e_{\P^2} = (xy)^3 + (1 + xy + (xy)^2) \\
+        \cdots & \\
+        e_{\P^n} &= 1 + (xy) + (xy)^2 + \cdots + (xy)^n. 
+    \end{align*}
 \end{example}
 
 \end{document}
