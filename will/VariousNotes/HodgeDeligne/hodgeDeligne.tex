@@ -1,0 +1,158 @@
+\documentclass{article}
+\usepackage{amsfonts, amsmath, amsthm, amssymb, enumerate, fancyhdr, gensymb, lastpage, mathtools, parskip, graphicx}
+\usepackage{xcolor, tikz-cd}
+\usepackage[a4paper, total={6in, 8in}]{geometry}
+\usepackage{setspace}
+
+\usepackage[OT2,T1]{fontenc}
+\DeclareSymbolFont{cyrletters}{OT2}{wncyr}{m}{n}
+\DeclareMathSymbol{\Sha}{\mathalpha}{cyrletters}{"58}
+
+% Theorem environments
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{corollary}[theorem]{Corollary}
+
+% Definition-style environments
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{example}[theorem]{Example}
+
+% Remark-style environments
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+
+
+%\onehalfspacing
+\setstretch{1.3}
+\newcommand{\wg}[1]{\textcolor{violet}{#1}}
+
+%\renewcommand{\C}{\mathcal C}
+\newcommand{\Z}{\mathbb Z}
+\newcommand{\Ztwo}{\mathbb Z / 2\mathbb Z}
+\newcommand{\Ztwosq}{(\mathbb Z / 2 \mathbb Z)^2}
+\newcommand{\GalK}{G_{\bar K / K}}
+\newcommand{\Q}{\mathbb Q}
+\newcommand{\R}{\mathbb R}
+\newcommand{\im}{\text{im }}
+\renewcommand{\div}{\, \vert \,}
+\newcommand{\F}{\mathbb F}
+\newcommand{\EQW}{E'(\Q)/2E(\Q)}
+\newcommand{\Etors}{E(\Q)_{\text{tors}}}
+\renewcommand{\F}[1]{\mathbb F_{#1}}
+\newcommand{\Qst}{\mathbb Q(S,2)}
+\newcommand{\Sphi}{S^\phi}
+\newcommand{\Sphihat}{S^{\hat \phi}}
+\newcommand{\bark}{{\bar{k}}}
+\newcommand{\Qsqs}{(\Q^\times)/(\Q^\times)^2}
+\newcommand{\Zn}[1]{\mathbb Z / #1 \mathbb Z}
+\newcommand{\C}{\mathbb C}
+\newcommand{\epq}{e^{p,q}}
+\newcommand{\Spec}[1]{\text{Spec}(#1)}
+\newcommand{\OX}{\mathcal O_X}
+
+\newenvironment{wgenv}{\color{violet}}{}
+
+\newcommand{\smalltwobytwo}[4]{
+\left( \begin{smallmatrix*}
+   #1 & #2 \\ #3 & #4 
+\end{smallmatrix*}\right) 
+}
+\newcommand{\bmat}[1]{
+    \begin{bmatrix*}
+        #1
+    \end{bmatrix*}
+}
+
+\title{
+    Hodge Deligne Numbers for Hypersurfaces in Toric Varieties
+}
+\author{Will Gilroy}
+\date{July 2026}
+
+\begin{document}
+\maketitle
+
+\section{Mike Meeting 03 Aug}
+Mike took us through some of the basic ideas. It was a long meeting,
+but there were a lot of ideas, and so this is a writeup for some of
+the ideas from that meeting.
+
+Any \text{text in purple} indicates either a question from myself or
+an incomplete thought. 
+
+\subsection{Definition of Hodge-Deligne Numbers and Some Basic Properties}
+Let $X$ be a variety over $\C$ of dimension\footnote{
+    \wg{A variety is defined to be separated, irreducible, finite type
+    $k$-scheme. I am trying to remember why we have that a variety has
+    a well-defined dimension.}
+}
+ $n$.
+The \textit{Hodge-Deligne numbers} denoted $e^{p,q}(X)$ for $0 \leq
+p,q \leq n$ are a collection of integers satisfying properties soon to
+be described. Moreover the polynomial $e_X(x,y) := \sum_{0 \leq p,q \leq n}
+\epq(X) x^p y^q$ is called the \textit{Hodge-Deligne} polynomial.
+The Hodge-Deligne numbers and polynomial satisfy the following
+properties
+\begin{itemize}
+    \item The Hodge-Deligne polynomial is symmetric in $x,y$, $e_X(x,y) =
+    e_X(y,x)$. In other words, the Hodge-Deligne numbers are symmetric
+    in $p,q$, $e^{p,q}(X) = e^{q,p}$.
+    
+    \item If $X$ is reducible then the Hodge-Deligne polynomial
+    decomposes additively over the components: if $X = Y \amalg Z$
+    \wg{(presumably these have to be closed subsets?)} then $e_X = e_Y
+    + e_Z$. 
+    \wg{(A variety is by definition irreducible, so, perhaps the most
+    general setting is for a separated, finite type over $\C$-scheme?
+    Or maybe this property is supposed to be for closed subvarieties?)}
+
+    \item If $X$ is a product variety then its Hodge-Deligne
+    polynomial decomposes multiplicatively: if $X = Y \times_{\C} Z$
+    then $e_X = e_Y e_Z$. 
+
+    \item If $X$ is projective and smooth (over $\C$) then recall
+    that the hodge numbers are the dimensions of the
+    $\C$-vector spaces given by cohomology over the sheaf of
+    differentials 
+    \[
+        h^{p,q}(X) = \dim_\C H^q(X, \Omega^p_X).
+    \]
+
+    In this setting, 
+    the Hodge-Deligne numbers are related to the Hodge numbers in the
+    following way
+    \[
+        \epq(X) = (-1)^{p+q} \cdot h^{p,q}(X). 
+    \]
+\end{itemize}
+
+\subsection{Examples}
+
+\begin{example}[A point]
+    Let $X = \{*\} = \Spec \C$. We have that $X$ is smooth and
+    projective. The following Hodge calculation will give that $e_X(x,y) = 1$.
+    
+    Since $X$ is affine $H^q(X, \Omega^p_X)$ is
+    non-vanishing only for $q = 0$. 
+    Recall that $\Omega^p_X = 0$ for all $p > 0$ \wg{(I have forgotten
+    why this is true, but it follows because $X$ is a point. I think
+    it should be easy to build the module of differentials in this
+    case once one
+    remembers the definition and construction)} and so $h^{p,q} = 0$ for all $p,q > 0$.
+    The only possible non-zero Hodge number we may have is for $p = q=
+    0$. We have the following
+    \begin{align*}
+        h^{0,0}(X) &:= H^0(X, \Omega_X^0) \\
+        &= \dim_\C H^0(X, \OX) && \text{By definition}\\
+        &= \dim_\C \Gamma(X, \OX) && \text{By the cohomology axioms} \\
+        &= \dim_\C \C  && \text{$X = \Spec \C$ } \\ 
+        &= 1.
+    \end{align*}
+    Overall, we have a that $h^{0,0}(X) = 1$ and 
+    $h^{p,q}(X) = 0$ for all other $p,q$. 
+    The claimed result follows.
+\end{example}
+
+\end{document}
