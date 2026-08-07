@@ -3,6 +3,7 @@
 \usepackage{xcolor, tikz-cd}
 \usepackage[a4paper, total={6in, 8in}]{geometry}
 \usepackage{setspace}
+\usepackage[normalem]{ulem}
 
 \usepackage[OT2,T1]{fontenc}
 \DeclareSymbolFont{cyrletters}{OT2}{wncyr}{m}{n}
@@ -164,10 +165,14 @@ properties
 
 \begin{example}[$P^1_\C$]
    Performing a similar Hodge computation to the example of the point
-   \wg{Is this how we found this in the meeting?} one can compute that
+   one can compute that
    \[
         e_{\P^1_\C} = 1 + xy. 
    \]
+   \wg{This might eb a worthwhile computation. $\P^1$ is covered by 
+   two affine patches and so we only need to compute for $p < 2$. 
+   We need to recall how to compute the sheaf of differentials however, but I
+   think it should be nonvanishing only degree $0,1$. }
 \end{example}
 
 \begin{example}[$\mathbb A^1_\C$]
@@ -179,10 +184,12 @@ properties
         e_{\mathbb A^1_\C}(x,y) = e_{\P^1_\C} - e_{\{*\}} = xy.
     \end{align*}
 
-    \wg{I'm a bit confused by this example, becuase the affine line is
+    \wg{\sout{I'm a bit confused by this example, becuase the affine line is
     affine, and so we should expect it to only have have cohomology in
     degree $0$. That is to say, I would expect that this should be a
-    polynomial only in $y$.}
+    polynomial only in $y$.} The Hodge-Deligne numbers agree with
+    the Hodge numbers only when $X$ is projective -- $\mathbb A^1$ is not
+    projective, so we're gucci.}
 \end{example}
 
 \begin{example}[$\mathbb A^n_\C$.]
@@ -219,5 +226,49 @@ properties
         e_{\P^n} &= 1 + (xy) + (xy)^2 + \cdots + (xy)^n. 
     \end{align*}
 \end{example}
+
+
+\section{Procedure for Hypersurfaces in Toric Varities.}
+
+\wg{we should go back and fill out some of the preamble thoery here}
+
+Suppose we have a full dimension polytope $\Delta$. We can decompose our toric
+variety
+\[
+    P_\Delta = \amalg_{\Gamma' \leq \Delta} T_{\Gamma'}
+\]
+where $T_{\Gamma'} = (\C^*)^{\dim \Gamma'}$. And so we can compute the 
+Hodge-Deligne polynomial of a toric variety using the decomposition property.
+\wg{Does each subcone really just give a torus in a toric variety? Or is it somehow sufficient to compute the Hodge-Deligne polynomial on a dense open?}
+
+Let $Z_{\Gamma' } = Z \cap T_{\Gamma'}$. We have the following formula
+\[
+    e^{pq}(\bar Z) = e^{pq}(Z) +\sum_{\Gamma' < \Delta} e^{pq}(Z_{\Gamma'}).
+\] 
+Note that a consequence of this formula is that 
+for $p = n$ or $q = n$, $e^{pq}(\bar Z)$ is determined by 
+$e^{pq}(Z)$. 
+\wg{I think this should follow from the dimension property of Hodge-Deligne
+numberes, and each $e^{pq}(Z_{\Gamma'})$ has dimension strictly less than $n$.
+Is this reasoning correct?}
+
+We also have the following formulae
+\begin{align*}
+    e^{pq} (Z) &= e^{p+1, q+1}(T) = \begin{cases}
+        0 & p \neq q \\
+        (-1)^{n + p + 1} \binom{n}{p+1} & p = q
+    \end{cases} \\
+    \intertext{And for $p + q \geq n$,}
+    \sum\limits_{q = 0}^{n-1} e^{pq}(Z) &=
+        (-1)^{p}\left((-1)^{n+1} \binom{n}{p+1} 
+        - \sum_{k \geq 1} (-1)^{k} \binom{n+1}{p + k + 1} \ell^*(k \Delta)\right). \tag{*}
+\end{align*}
+where $\ell^*$ denotes the number of interior lattice points of the given
+polytope.
+\wg{Is this last formula actually correct?}
+
+\wg{I think the algorithm is then as follows: we iteratively compute 
+the Hodge-Deligne numbers starting from the smalles cone,
+and we only need to use formula $(*)$ to add the numbers in degree $n$, is that correct?}
 
 \end{document}
