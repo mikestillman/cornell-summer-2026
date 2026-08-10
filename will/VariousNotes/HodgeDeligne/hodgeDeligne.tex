@@ -341,9 +341,30 @@ $n$, is that correct?}
     $e_{Z_{\Gamma_1}} = 2$.
     A very similar argument yields that $e_{Z_{\Gamma'}} = 2$ for all
     $\Gamma < \Delta$. And so $e^{00}(\bar Z) = 8$.
-
-    \wg{Next we need to compute the last Hodge Deligne number using the starred formula. It seems that this polynomial does not actually depend on choice of hypersurface?}
     
+    The last Hodge-Deligne numebr to compute is $e^{10}(Z)$, we
+    compute this using the formula $(*)$. We have
+    \begin{align*}
+        e^{10}(Z) + e^{11}(Z) 
+        &= (-1)^{1}\left[
+            (-1)^{2 + 1}\binom{2}{1 + 1} - \sum_{k \geq 1} (-1)^{k} \binom{2+1}{1 + k + 1} \ell^*(k\Delta)
+        \right] \\
+        e^{10}(Z) + 1 &= -\left[
+            (-1) - (-1) \binom{3}{3}(1)
+        \right] \\
+        e^{10}(Z) &= -1.
+    \end{align*}
+    By $p,q$ symmetry of the Hodge-Deligne numbers, we\footnote{
+        \wg{As an aside, interestingly, this portion of the calculation
+        seems to not have depended on the choice of hypersurface at
+        all, is this correct?}
+    }
+    also have $e^{01}(Z) = -1$.
+    
+    Overall, we have found the Hodge-Deligne polynomial for $f$ as
+    \[
+        e_{Z} = 8 - x - y + xy.
+    \]
 \end{example}
 
 \newpage
