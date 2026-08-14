@@ -330,6 +330,7 @@ $n$, is that correct?}
     above implies that for $p + q \geq 2$ the only
     nonvanishing Hodge number is $e^{11}(Z) = (-1)^{2 + 1
     +1}\binom{2}{1 + 1} = 1$. 
+    In particular $e^{3q}(Z) = e^{p3}(Z) = 0$ for all $p,q$. 
 
     Next we compute the contributions from $\sum_{\Gamma' < \Delta}
     e^{pq}(Z_{\Gamma'})$. 
@@ -340,7 +341,8 @@ $n$, is that correct?}
     normal vector
     corresponding to $\Gamma_1$ is $(0,1)$, 
     and so intersecting with $T_{\Gamma_1}$ algebraically
-    corresponds to sending $y \mapsto 1$ \wg{(I'm not this part is
+    corresponds to (???) (Dividing by $y$? Or sending $y$ to $1$?
+    Either way, I think we need to ``get rid of $y$'' in this case) \wg{(I'm not this part is
     articulated correctly; I think restricting to this cone
     corresponds to restricting to an open patch where we ``divide by
     $y$'', similar to the distinguished patches in projective space?
@@ -352,11 +354,17 @@ $n$, is that correct?}
     Hodge-Deligne polynomial of a point found above that 
     $e_{Z_{\Gamma_1}} = 2$.
     A very similar argument yields that $e_{Z_{\Gamma'}} = 2$ for all
-    $\Gamma < \Delta$. And so $e^{00}(\bar Z) = 8$.
+    $\Gamma < \Delta$. And so we have that the contribution from the
+    recursion only adds to $e^{00}(\bar Z)$ and
+    \[
+        e^{00}(\bar Z) = e^{00}(Z) + \sum_{\Gamma' < \Delta} e^{00}(Z_{\Gamma'}) 
+        = e^{00}(Z) + 8.
+    \]
+    We will compute $e^{00}(Z)$ using formula $(*)$, however, to use
+    that formula we will need to know the number $e^{01}(Z)$. And so
+    we turn to computing that number next.
     
-    The last Hodge-Deligne numebr to compute is $e^{10}(Z)$, we
-    compute this using the formula $(*)$. We have
-
+    We compute $e^{10}(Z)$ using formula $(*)$. We have
     \begin{align*}
         e^{10}(Z) + e^{11}(Z) 
         &= (-1)^{1}\left[
@@ -369,25 +377,39 @@ $n$, is that correct?}
     \end{align*}
     By $p,q$ symmetry of the Hodge-Deligne numbers, we\footnote{
         \wg{As an aside, interestingly, this portion of the calculation
-        seems to not have depended on the choice of hypersurface at
-        all, is this correct?}
+        seems to be independent from the choice of hypersurface, is this correct?}
     }
     also have $e^{01}(Z) = -1$.
-    
+
+    Now we can lastly compute the contribution $e^{00}(Z)$.
+    We compute this number using formula $(*)$ again.
+    We have 
+    \begin{align*}
+        e^{00}(Z) + e^{01}(Z) &= (-1)^{0}\left[
+            (-1)^{2 + 1}\binom{2+1}{1} - \sum_{k \geq 1} (-1)^{k} \binom{2}{k+ 1} \ell^*(k \Delta)
+        \right] \\
+        e^{00}(Z)  - 1 &= -2 - \left[
+            (-1)^{1} \binom{3}{2} \ell^*(\Delta) + (-1)^{2}\binom{3}{3}\ell^*(2\Delta) 
+        \right] \\
+        e^{00}(Z) -1 &= -2 - \left[-1(3)(1) + 1(1)(9)\right] \\
+        e^{00}(Z) &= -7.
+    \end{align*}
+    Then, using the contribution from the recursion that we found
+    earlier, we have 
+    \[
+        e^{00}(\bar Z) = -7 + 8 = 1. 
+    \]
+
     Overall, we have found the Hodge-Deligne polynomial for $f$ as
     \[
-        e_{Z}(x,y) = 8 - x - y + xy.
+        e_{Z}(x,y) = 1 - x - y + xy.
     \]
-    \wg{Is there a good way to check if this makes sense?}
-    \begin{itemize}
-        \item TODO
-        \item I think we also need to compute the $e^{00}$
-        contributions from $Z$, perhaps we need to do this with the
-        lattice point counting formula?
-        \item Write up computation of a hypersurface on a d8
-    \end{itemize}
+    \wg{Is there a good way to check if this makes sense? I think this
+    now matches what we got in the meeting}
 \end{example}
 
+
+\iffalse
 \newpage
 \section{graveyard}
 
@@ -425,5 +447,6 @@ $n$, is that correct?}
     Hodge-Deligne polynomial $e_{\C^1} = xy$. Meaning that the Hodge
     numbers for $\C^1$ are all zero except for $p=1, q=1$. 
 \end{example}
+\fi
 
 \end{document}
