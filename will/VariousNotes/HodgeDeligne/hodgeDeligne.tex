@@ -1,0 +1,452 @@
+\documentclass{article}
+\usepackage{amsfonts, amsmath, amsthm, amssymb, enumerate, fancyhdr, gensymb, lastpage, mathtools, parskip, graphicx}
+\usepackage{xcolor, tikz-cd}
+\usepackage[a4paper, total={6in, 8in}]{geometry}
+\usepackage{setspace}
+\usepackage[normalem]{ulem}
+\usepackage[bottom]{footmisc}
+
+\usepackage[OT2,T1]{fontenc}
+\DeclareSymbolFont{cyrletters}{OT2}{wncyr}{m}{n}
+\DeclareMathSymbol{\Sha}{\mathalpha}{cyrletters}{"58}
+
+% Theorem environments
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{corollary}[theorem]{Corollary}
+
+% Definition-style environments
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{example}[theorem]{Example}
+
+% Remark-style environments
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+
+
+%\onehalfspacing
+\setstretch{1.3}
+\newcommand{\wg}[1]{\textcolor{violet}{#1}}
+
+%\renewcommand{\C}{\mathcal C}
+\newcommand{\Z}{\mathbb Z}
+\newcommand{\Ztwo}{\mathbb Z / 2\mathbb Z}
+\newcommand{\Ztwosq}{(\mathbb Z / 2 \mathbb Z)^2}
+\newcommand{\GalK}{G_{\bar K / K}}
+\newcommand{\Q}{\mathbb Q}
+\newcommand{\R}{\mathbb R}
+\newcommand{\im}{\text{im }}
+\renewcommand{\div}{\, \vert \,}
+\newcommand{\F}{\mathbb F}
+\newcommand{\EQW}{E'(\Q)/2E(\Q)}
+\newcommand{\Etors}{E(\Q)_{\text{tors}}}
+\renewcommand{\F}[1]{\mathbb F_{#1}}
+\newcommand{\Qst}{\mathbb Q(S,2)}
+\newcommand{\Sphi}{S^\phi}
+\newcommand{\Sphihat}{S^{\hat \phi}}
+\newcommand{\bark}{{\bar{k}}}
+\newcommand{\Qsqs}{(\Q^\times)/(\Q^\times)^2}
+\newcommand{\Zn}[1]{\mathbb Z / #1 \mathbb Z}
+\newcommand{\C}{\mathbb C}
+\newcommand{\epq}{e^{p,q}}
+\newcommand{\Spec}[1]{\text{Spec}(#1)}
+\newcommand{\OX}{\mathcal O_X}
+\renewcommand{\P}{\mathbb P}
+\newcommand{\cross}{\times}
+
+\newenvironment{wgenv}{\color{violet}}{}
+
+\newcommand{\smalltwobytwo}[4]{
+\left( \begin{smallmatrix*}
+   #1 & #2 \\ #3 & #4 
+\end{smallmatrix*}\right) 
+}
+\newcommand{\bmat}[1]{
+    \begin{bmatrix*}
+        #1
+    \end{bmatrix*}
+}
+
+\title{
+    Hodge Deligne Numbers for Hypersurfaces in Toric Varieties
+}
+\author{Will Gilroy}
+\date{July 2026}
+
+\begin{document}
+\maketitle
+
+\section{Mike Meeting 03 Aug}
+Mike took us through some of the basic ideas. It was a long meeting,
+but there were a lot of ideas, and so this is a writeup for some of
+the ideas from that meeting.
+
+Any \text{text in purple} indicates either a question from myself or
+an incomplete thought. 
+
+\subsection{Definition of Hodge-Deligne Numbers and Some Basic Properties}
+Let $X$ be a variety over $\C$ of dimension\footnote{
+    \wg{A variety is defined to be separated, irreducible, finite type
+    $k$-scheme. I am trying to remember why we have that a variety has
+    a well-defined dimension.}
+}
+ $n$.
+The \textit{Hodge-Deligne numbers} denoted $e^{p,q}(X)$ for $0 \leq
+p,q \leq n$ are a collection of integers satisfying properties soon to
+be described. Moreover the polynomial $e_X(x,y) := \sum_{0 \leq p,q \leq n}
+\epq(X) x^p y^q$ is called the \textit{Hodge-Deligne} polynomial.
+The Hodge-Deligne numbers and polynomial satisfy the following
+properties
+\begin{itemize}
+    \item The Hodge-Deligne polynomial is symmetric in $x,y$, $e_X(x,y) =
+    e_X(y,x)$. In other words, the Hodge-Deligne numbers are symmetric
+    in $p,q$, $e^{p,q}(X) = e^{q,p}$.
+    
+    \item If $X$ is reducible then the Hodge-Deligne polynomial
+    decomposes additively over the components: if $X = Y \amalg Z$
+    \wg{(presumably these have to be closed subsets?)} then $e_X = e_Y
+    + e_Z$. 
+    \wg{(A variety is by definition irreducible, so, perhaps the most
+    general setting is for a separated, finite type over $\C$-scheme?
+    Or maybe this property is supposed to be for closed subvarieties?)}
+
+    \item If $X$ is a product variety then its Hodge-Deligne
+    polynomial decomposes multiplicatively: if $X = Y \times_{\C} Z$
+    then $e_X = e_Y e_Z$. 
+
+    \item If $X$ is projective and smooth (over $\C$) then recall
+    that the hodge numbers are the dimensions of the
+    $\C$-vector spaces given by cohomology over the sheaf of
+    differentials 
+    \[
+        h^{p,q}(X) = \dim_\C H^q(X, \Omega^p_X).
+    \]
+
+    In this setting, 
+    the Hodge-Deligne numbers are related to the Hodge numbers in the
+    following way
+    \[
+        \epq(X) = (-1)^{p+q} \cdot h^{p,q}(X). 
+    \]
+\end{itemize}
+
+\subsection{Examples}
+
+\begin{example}[A point]
+    Let $X = \{*\} = \Spec \C$. We have that $X$ is smooth and
+    projective. The following Hodge calculation will give that $e_X(x,y) = 1$.
+    
+    Since $X$ is affine $H^q(X, \Omega^p_X)$ is
+    non-vanishing only for $q = 0$. 
+    Recall that $\Omega^p_X = 0$ for all $p > 0$ \wg{(I have forgotten
+    why this is true, but it follows because $X$ is a point. I think
+    it should be easy to build the module of differentials in this
+    case once one
+    remembers the definition and construction)} and so $h^{p,q} = 0$ for all $p,q > 0$.
+    The only possible non-zero Hodge number we may have is for $p = q=
+    0$. We have the following
+    \begin{align*}
+        h^{0,0}(X) &:= H^0(X, \Omega_X^0) \\
+        &= \dim_\C H^0(X, \OX) && \text{By definition}\\
+        &= \dim_\C \Gamma(X, \OX) && \text{By the cohomology axioms} \\
+        &= \dim_\C \C  && \text{$X = \Spec \C$ } \\ 
+        &= 1.
+    \end{align*}
+    Overall, we have a that $h^{0,0}(X) = 1$ and 
+    $h^{p,q}(X) = 0$ for all other $p,q$. 
+    The claimed result follows.
+\end{example}
+
+\begin{example}[Union of Points]
+   It follows from the previous example and the decomposition property
+   of $e_X$ that a disjoint union of $n$ points has Hodge-Deligne
+   polynomial $e_X(x,y) = n$. 
+\end{example}
+
+\begin{example}[$P^1_\C$]
+   Performing a similar Hodge computation to the example of the point
+   one can compute that
+   \[
+        e_{\P^1_\C} = 1 + xy. 
+   \]
+   \wg{This might eb a worthwhile computation. $\P^1$ is covered by 
+   two affine patches and so we only need to compute for $p < 2$. 
+   We need to recall how to compute the sheaf of differentials however, but I
+   think it should be nonvanishing only degree $0,1$. }
+\end{example}
+
+\begin{example}[$\mathbb A^1_\C$]
+    We can decompose $P^1 = \mathbb A^1 \amalg \{*\}$ the affine
+    line with a ``point at infinity''.
+    ``point at infinity.'' Since $\mathbb A^1$ is an open subset and
+    $\{*\}$ is a closed point we have 
+    \begin{align*}
+        e_{\mathbb A^1_\C}(x,y) = e_{\P^1_\C} - e_{\{*\}} = xy.
+    \end{align*}
+
+    \wg{\sout{I'm a bit confused by this example, becuase the affine line is
+    affine, and so we should expect it to only have have cohomology in
+    degree $0$. That is to say, I would expect that this should be a
+    polynomial only in $y$.} The Hodge-Deligne numbers agree with
+    the Hodge numbers only when $X$ is projective -- $\mathbb A^1$ is not
+    projective, so we're gucci.}
+\end{example}
+
+\begin{example}[$\mathbb A^n_\C$.]
+    Using the product property of the Hodge-Deligne polynomial we have
+    \[
+        E_{\mathbb A^n} = (xy)^n.
+    \]
+    From this example, we can read off the hodge numbers without
+    needing to do any Hodge comptuations.
+\end{example}
+
+\begin{example}[Algebraic Torii]
+    We can decompose the affine line $\mathbb A^1 = \C^* \amalg \{*\}$
+    and so using the decomposition property of the Hodge-Deligne
+    polynomial we have
+    \[
+        e_{\C^*} = e_{\mathbb A^1_\C} + e_{\{*\}} = xy - 1.
+    \]
+    Then, using the product property we further have that 
+    \[
+        e_{(\C^*)^n}  = (e_{\C^*})^n = (xy-1)^n. 
+    \]  
+\end{example}
+
+\begin{example}[$\P^n_\C$]
+    Recall that we can decompose $\P^n = \C^{n} \amalg \P^{n-1}$
+    and then we can find the Hodge-Deligne polynomial of $\P^n$
+    inductively. Consider,
+    \begin{align*}
+        e_{\P^1} &= 1 + xy \\
+        e_{\P^2} &= e_{\C^2} + e_{\P^1} = (xy)^2 + (1 + xy) \\
+        e_{\P^3} &= e_{\C^3} + e_{\P^2} = (xy)^3 + (1 + xy + (xy)^2) \\
+        \cdots & \\
+        e_{\P^n} &= 1 + (xy) + (xy)^2 + \cdots + (xy)^n. 
+    \end{align*}
+\end{example}
+
+
+\section{Procedure for Hypersurfaces in Toric Varities.}
+
+\wg{we should go back and fill out some of the preamble thoery here}
+
+Suppose we have a full dimension polytope $\Delta$. We can decompose our toric
+variety
+\[
+    P_\Delta = \amalg_{\Gamma' \leq \Delta} T_{\Gamma'}
+\]
+where $T_{\Gamma'} = (\C^*)^{\dim \Gamma'}$. And so we can compute the 
+Hodge-Deligne polynomial of a toric variety using the decomposition property.
+\wg{Does each subcone really just give a torus in a toric variety? Or is it somehow sufficient to compute the Hodge-Deligne polynomial on a dense open?}
+
+Let $Z_{\Gamma' } = Z \cap T_{\Gamma'}$. We have the following formula
+\[
+    e^{pq}(\bar Z) = e^{pq}(Z) +\sum_{\Gamma' < \Delta} e^{pq}(Z_{\Gamma'}).
+\] 
+Note that a consequence of this formula is that 
+for $p = n$ or $q = n$, $e^{pq}(\bar Z)$ is determined by 
+$e^{pq}(Z)$. 
+\wg{I think this should follow from the dimension property of Hodge-Deligne
+numberes, and each $e^{pq}(Z_{\Gamma'})$ has dimension strictly less than $n$.
+Is this reasoning correct?}
+
+We also have the following formulae
+\begin{align*}
+    e^{pq} (Z) &= e^{p+1, q+1}(T) = \begin{cases}
+        0 & p \neq q \\
+        (-1)^{n + p + 1} \binom{n}{p+1} & p = q
+    \end{cases} \tag{1}\\
+    \intertext{for $p + q \geq n$. And,}
+    \sum\limits_{q = 0}^{n-1} e^{pq}(Z) &=
+        (-1)^{p}\left((-1)^{n+1} \binom{n}{p+1} 
+        - \sum_{k \geq 1} (-1)^{k} \binom{n+1}{p + k + 1} \ell^*(k \Delta)\right). \tag{*}
+\end{align*}
+where $\ell^*$ denotes the number of interior lattice points of the given
+polytope.
+\wg{Is this last formula actually correct? Are there conditions on
+$p,q$ for when this formula holds?}
+
+\wg{I think the algorithm is then as follows: we iteratively compute 
+the Hodge-Deligne numbers starting from the smalles cone,
+and we only need to use formula $(*)$ to add the numbers in degree
+$n$, is that correct?}
+
+\subsection{Examples}
+\begin{example}[Hypersurface in $\P^1 \times \P^1$]
+    Recall that the projective toric variety $\P^1 \times \P^1$ is
+    given by the polytope $\Delta =
+   \text{ConvexHull}((1,1), (1,-1), (-1, 1), (-1,1))$, 
+    the reflexive square with the origin as the
+    interior lattice point.
+    We use the recursive procedure described above to compute the
+    Hodge-Deligne numbers for the hypersurface defined by
+    \[
+        f(x,y) = xy + \frac{x}{y} + \frac{1}{xy} + \frac{y}{x}.
+    \]
+    Note that the Newton polytope of this Laurent polynomials is in
+    fact $\Delta$.
+    First we determine that this polynomial is non-degenerate with
+    respect to $\Delta$. Let us label each of the facets (edges) of
+    $\Delta$ as follows; $\Gamma_1 = \text{ConvexHull}((-1, 1), (1,1))$ as the
+    ``top face'', $\Gamma_2 = \text{ConvexHull}((1,1), (1,-1))$ as the
+    ``right face'', and proceeding clockwise.
+    The facet\footnote{
+    I think in the general setting the vertex monomials are always
+    vacuously smooth since I think they do not even have solutions in
+    $(\C^*)^2$. This argument about the general setting 
+    should be checked, but one can certainly verify
+    here that the vertex monomials are smooth.
+    } polynomials are then as follows
+    \begin{align*}
+        f_{\Gamma_1} &= \frac{y}{x} + xy \\
+        f_{\Gamma_2} &= xy + \frac{x}{y} \\
+        f_{\Gamma_3} &= \frac{x}{y} + \frac{1}{xy}\\
+        f_{\Gamma_4} &= \frac{1}{xy} + \frac{y}{x}.
+    \end{align*}
+    We show that $Z(f_{\Gamma_1})$ is smooth. The partial derivatives
+    are
+    \[
+        \frac{\partial f_{\Gamma_1}}{\partial x} = -\frac{y}{x^2} + y
+        \qquad
+        \frac{\partial f_{\Gamma_1}}{\partial y} = \frac{1}{x} + x.
+    \]
+    $\partial f_{\Gamma_1}/\partial y = 0$ has solutions in $(\C^*)^2$
+    with $x$-coordinate $x = \pm 1$
+    whereas $\partial f_{\Gamma_1}/\partial x = 0$ implies $x = \pm
+    i$. This system has no simultaneous solutions in $(\C^*)^2$ and so
+    $Z(f_{\Gamma_1})$ is smooth.
+    A similar calculation will give that each $Z(f_{\Gamma_i})$ is
+    smooth and thus $f$ is indeed non-degenerate
+    with respect to $\Delta$. 
+
+    Next we compute the Hodge-Deligne numbers for $Z = Z(f)$. 
+    Since we are in $n = 2$, in principle, we have nonvanishing
+    Hodge-Deligne numbers for $p,q \leq n$; However 
+    formula $(1)$     
+    above implies that for $p + q \geq 2$ the only
+    nonvanishing Hodge number is $e^{11}(Z) = (-1)^{2 + 1
+    +1}\binom{2}{1 + 1} = 1$. 
+    In particular $e^{3q}(Z) = e^{p3}(Z) = 0$ for all $p,q$. 
+
+    Next we compute the contributions from $\sum_{\Gamma' < \Delta}
+    e^{pq}(Z_{\Gamma'})$. 
+    Let us first consider $\Gamma'= \Gamma_1$.
+    By definition this is $Z(f_{\Gamma_1}) \cap T_{\Gamma_1} \cong
+    Z(f_{\Gamma_1}) \cap \C^*$. 
+    Recall $f_{\Gamma_1} = y/x + xy = y(1/x + x)$. The primitive
+    normal vector
+    corresponding to $\Gamma_1$ is $(0,1)$, 
+    and so intersecting with $T_{\Gamma_1}$ algebraically
+    corresponds to (???) (Dividing by $y$? Or sending $y$ to $1$?
+    Either way, I think we need to ``get rid of $y$'' in this case) \wg{(I'm not this part is
+    articulated correctly; I think restricting to this cone
+    corresponds to restricting to an open patch where we ``divide by
+    $y$'', similar to the distinguished patches in projective space?
+    Is that correct?)}. 
+    And so we search for solution in $\C^*$ to $1/x + x = 0$. 
+    The solution set is $x = \pm i$; topologically this is the
+    disjoint union of two points in $\C^*$. It follows then from the
+    union-sum property of Hodge-Deligne polynomials and from the
+    Hodge-Deligne polynomial of a point found above that 
+    $e_{Z_{\Gamma_1}} = 2$.
+    A very similar argument yields that $e_{Z_{\Gamma'}} = 2$ for all
+    $\Gamma < \Delta$. And so we have that the contribution from the
+    recursion only adds to $e^{00}(\bar Z)$ and
+    \[
+        e^{00}(\bar Z) = e^{00}(Z) + \sum_{\Gamma' < \Delta} e^{00}(Z_{\Gamma'}) 
+        = e^{00}(Z) + 8.
+    \]
+    We will compute $e^{00}(Z)$ using formula $(*)$, however, to use
+    that formula we will need to know the number $e^{01}(Z)$. And so
+    we turn to computing that number next.
+    
+    We compute $e^{10}(Z)$ using formula $(*)$. We have
+    \begin{align*}
+        e^{10}(Z) + e^{11}(Z) 
+        &= (-1)^{1}\left[
+            (-1)^{2 + 1}\binom{2}{1 + 1} - \sum_{k \geq 1} (-1)^{k} \binom{2+1}{1 + k + 1} \ell^*(k\Delta)
+        \right] \\
+        e^{10}(Z) + 1 &= -\left[
+            (-1) - (-1) \binom{3}{3}(1)
+        \right] \\
+        e^{10}(Z) &= -1.
+    \end{align*}
+    By $p,q$ symmetry of the Hodge-Deligne numbers, we\footnote{
+        \wg{As an aside, interestingly, this portion of the calculation
+        seems to be independent from the choice of hypersurface, is this correct?}
+    }
+    also have $e^{01}(Z) = -1$.
+
+    Now we can lastly compute the contribution $e^{00}(Z)$.
+    We compute this number using formula $(*)$ again.
+    We have 
+    \begin{align*}
+        e^{00}(Z) + e^{01}(Z) &= (-1)^{0}\left[
+            (-1)^{2 + 1}\binom{2+1}{1} - \sum_{k \geq 1} (-1)^{k} \binom{2}{k+ 1} \ell^*(k \Delta)
+        \right] \\
+        e^{00}(Z)  - 1 &= -2 - \left[
+            (-1)^{1} \binom{3}{2} \ell^*(\Delta) + (-1)^{2}\binom{3}{3}\ell^*(2\Delta) 
+        \right] \\
+        e^{00}(Z) -1 &= -2 - \left[-1(3)(1) + 1(1)(9)\right] \\
+        e^{00}(Z) &= -7.
+    \end{align*}
+    Then, using the contribution from the recursion that we found
+    earlier, we have 
+    \[
+        e^{00}(\bar Z) = -7 + 8 = 1. 
+    \]
+
+    Overall, we have found the Hodge-Deligne polynomial for $f$ as
+    \[
+        e_{\bar{Z}}(x,y) = 1 - x - y + xy.
+    \]
+    \wg{Is there a good way to check if this makes sense? I think this
+    now matches what we got in the meeting}
+\end{example}
+
+
+\iffalse
+\newpage
+\section{graveyard}
+
+\begin{example}[$\P^1 \times \P^1$]
+   Here we compute the Hodge-Deligne numbers for $Z = \P^1 \cross \P^1$.
+   Recall that for this toric variety we have 
+   $\Delta =
+   \text{ConvexHull}((1,1), (1,-1), (-1, 1), (-1,1))$. 
+   Since $n = 2$ we have that there are only four Hodge-Deligne
+   numbers to compute.
+
+    
+   We start with $p = 1, q = 1$. This is the only case for which $p +
+   q \geq 2$ and we have
+   \[
+       e^{11}(Z) = e^{2, 2}(T) = (-1)^{2 + 1 + 1}\binom{2}{1 + 1} = 1. 
+   \]
+
+    Next we compute $e^{01}$. For this we use $(*)$. We have
+    \begin{align*}
+        e^{10} + e^{11} &= (-1)^1 \left[
+            (-1)^{2+1} \binom{2}{1 + 1} - \sum_{k \geq 1}(-1)^{k}\binom{1 + 1}{1 + k + 1} \ell^*(k \Delta)
+        \right] \\
+        e^{10} + 1&=  (-1) \left[
+            (-1) - \left((-1)^1 \binom{3}{3} \cdot 1 \right)
+        \right]  \\
+        e^{10} &= -1.
+    \end{align*}
+    Then by $p,q$ symmetry we have that $e^{01} = -1$ also. 
+
+    Lastly, we compute $e^{00}$. We can do this by recurring and
+    computing the Hodge-Deligne number for a unit ray.
+    Recall that the toric variety corresponding to a single ray is the
+    affine line $\C^1$. We computed earlier that this has
+    Hodge-Deligne polynomial $e_{\C^1} = xy$. Meaning that the Hodge
+    numbers for $\C^1$ are all zero except for $p=1, q=1$. 
+\end{example}
+\fi
+
+\end{document}
