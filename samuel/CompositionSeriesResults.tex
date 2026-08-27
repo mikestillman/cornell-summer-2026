@@ -1,0 +1,649 @@
+\documentclass[a4paper,10pt]{article}
+\usepackage{subfiles}
+\usepackage[margin=1in]{geometry}
+\usepackage{adjustbox}
+\usepackage{amsfonts}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{amsthm}
+\usepackage{calc}
+\usepackage{enumitem}
+\usepackage{eucal}
+\usepackage{fancyhdr}
+\usepackage{mathrsfs}
+\usepackage{mathtools}
+\usepackage{nameref}
+\usepackage{parskip}
+\usepackage{physics}
+\usepackage{setspace}
+\usepackage{tabularx}
+\usepackage[most]{tcolorbox}
+\usepackage{tikz}
+\usepackage{tikz-cd}
+\usepackage{titlesec}
+\usepackage{verbatim}
+\usepackage{xcolor}
+\usepackage{quiver}
+\usepackage{imakeidx}
+\usepackage{hyperref}
+
+
+\usetikzlibrary{calc}
+\usetikzlibrary{decorations.pathmorphing}
+\usetikzlibrary{spath3}
+
+% A TikZ style for curved arrows of a fixed height, due to AndreC.
+\tikzset{curve/.style={settings={#1},to path={(\tikztostart)
+    .. controls ($(\tikztostart)!\pv{pos}!(\tikztotarget)!\pv{height}!270:(\tikztotarget)$)
+    and ($(\tikztostart)!1-\pv{pos}!(\tikztotarget)!\pv{height}!270:(\tikztotarget)$)
+    .. (\tikztotarget)\tikztonodes}},
+    settings/.code={\tikzset{quiver/.cd,#1}
+        \def\pv##1{\pgfkeysvalueof{/tikz/quiver/##1}}},
+    quiver/.cd,pos/.initial=0.35,height/.initial=0}
+
+% A TikZ style for shortening paths without the poor behavior of `shorten <' and `shorten >'.
+\tikzset{between/.style n args={2}{/tikz/execute at end to={
+    \tikzset{spath/split at keep middle={current}{#1}{#2}}
+}}}
+
+% TikZ arrowhead/tail styles.
+\tikzset{tail reversed/.code={\pgfsetarrowsstart{tikzcd to}}}
+\tikzset{2tail/.code={\pgfsetarrowsstart{Implies[reversed]}}}
+\tikzset{2tail reversed/.code={\pgfsetarrowsstart{Implies}}}
+% TikZ arrow styles.
+\tikzset{no body/.style={/tikz/dash pattern=on 0 off 1mm}}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\hypersetup{
+    colorlinks,
+    citecolor=black,
+    filecolor=black,
+    linkcolor=blue!60!black,
+    urlcolor=blue!60!black
+}
+\makeindex[title=Index]
+\makeindex[name=thm,title=Index of Theorems]
+
+
+\titleformat{name=\section}
+{\normalfont\Large\bfseries}
+{}
+{0pt}
+{}
+
+\tcbuselibrary{theorems}
+\NewTcbTheorem[number within=section]{theorem}{Theorem}{
+colback=white,
+colframe=gray!30,
+fonttitle=\bfseries,
+coltitle=black,
+colbacktitle=gray!30,
+toptitle=1mm,
+bottomtitle=1mm,
+parbox=false}{tcb}
+\NewTcbTheorem[use counter from=theorem]{lemma}{Lemma}{
+colback=white,
+colframe=gray!30,
+fonttitle=\bfseries,
+coltitle=black,
+colbacktitle=gray!30,
+toptitle=1mm,
+bottomtitle=1mm,
+parbox=false}{tcb}
+\NewTcbTheorem[use counter from=theorem]{exercise}{Exercise}{
+colback=white,
+colframe=gray!30,
+fonttitle=\bfseries,
+coltitle=black,
+colbacktitle=gray!30,
+toptitle=1mm,
+bottomtitle=1mm,
+parbox=false}{tcb}
+\NewTcbTheorem[use counter from=theorem]{corollary}{Corollary}{
+colback=white,
+colframe=gray!30,
+fonttitle=\bfseries,
+coltitle=black,
+colbacktitle=gray!30,
+toptitle=1mm,
+bottomtitle=1mm,
+parbox=false}{tcb}
+\NewTcbTheorem[use counter from=theorem]{proposition}{Proposition}{
+colback=white,
+colframe=gray!30,
+fonttitle=\bfseries,
+coltitle=black,
+colbacktitle=gray!30,
+toptitle=1mm,
+bottomtitle=1mm,
+parbox=false}{tcb}
+
+\theoremstyle{definition}
+\newtheorem{remark}[tcb@cnt@theorem]{Remark}
+\newtheorem{example}[tcb@cnt@theorem]{Example}
+\newtheorem{warning}[tcb@cnt@theorem]{Warning}
+\newtheorem{notation}[tcb@cnt@theorem]{Notation}
+\newtheorem{definition}[tcb@cnt@theorem]{Definition}
+\newtheorem{motivation}[tcb@cnt@theorem]{Motivation}
+\newtheorem{application}[tcb@cnt@theorem]{Application}
+\newtheorem{construction}[tcb@cnt@theorem]{Construction}
+
+\newcommand\aref[2][blue!60!black]{\begingroup\hypersetup{linkcolor=#1}\hyperlink{#2}{#2}\endgroup}
+\newcommand\bref[3][blue!60!black]{\begingroup\hypersetup{linkcolor=#1}\hyperlink{#2}{#3}\endgroup}
+\newcommand\lref[2][blue!60!black]{lemma \ref{tcb:#2}}
+\newcommand\tref[2][blue!60!black]{theorem \ref{tcb:#2}}
+\newcommand\eref[2][blue!60!black]{exercise \ref{tcb:#2}}
+\newcommand\cref[2][blue!60!black]{corollary \ref{tcb:#2}}
+\newcommand\pref[2][blue!60!black]{proposition \ref{tcb:#2}}
+\newcommand\Lref[2][blue!60!black]{Lemma \ref{tcb:#2}}
+\newcommand\Tref[2][blue!60!black]{Theorem \ref{tcb:#2}}
+\newcommand\Eref[2][blue!60!black]{Exercise \ref{tcb:#2}}
+\newcommand\Cref[2][blue!60!black]{Corollary \ref{tcb:#2}}
+\newcommand\Pref[2][blue!60!black]{Proposition \ref{tcb:#2}}
+
+\makeatletter
+\newcommand*{\shortenfences}[3]{%
+  % #1: left fence without \left
+  % #2: formula inside the fences
+  % #3: right fence without \right
+  \mathpalette{\@shortenfences{#1}{#3}}{#2}%
+}
+\newdimen\sf@dimen
+\newcommand*{\@shortenfences}[4]{%
+  % #1: left fence
+  % #2: right fence
+  % #3: math style
+  % #4: formula
+  \sbox0{$#3#4\m@th$}%
+  \sbox2{$#3\vcenter{}$}%
+  % \dimen0: height above math axis
+  \dimen0=\dimexpr\ht0 - \ht2\relax
+  \ifdim\dimen0<\z@
+    \dimen0=\z@
+  \fi
+  % \dimen2: depth below math axis
+  \dimen2=\dimexpr\ht2 + \dp0\relax
+  \ifdim\dimen2<\z@
+    \dimen2=\z@
+  \fi
+  % \sf@dimen: amount for lowering the inner formula
+  % to center the inner formula.
+  \sf@dimen=\dimexpr(\dimen0 - \dimen2)/2\relax
+  % lower the inner formula and raise the outer formula with
+  % the fences to keep the math axis.
+  \raisebox{\sf@dimen}{%
+    $#3\left#1\raisebox{-\sf@dimen}{\box0}\right#2\m@th$%
+  }
+}
+\makeatother
+
+\newcommand\eq{{\operatorname{eq}}}
+\newcommand\GL{{\operatorname{GL}}}
+\newcommand\Gr{{\operatorname{Gr}}}
+\newcommand\id{{\operatorname{id}}}
+\newcommand\pr{{\operatorname{pr}}}
+\newcommand\pt{{\operatorname{pt}}}
+\newcommand\sk{{\operatorname{sk}}}
+\newcommand\SL{{\operatorname{SL}}}
+\newcommand\cod{{\operatorname{cod}}}
+\newcommand\dom{{\operatorname{dom}}}
+\newcommand\fin{{\operatorname{fin}}}
+\newcommand\Fun{{\operatorname{Fun}}}
+\newcommand\Gal{{\operatorname{Gal}}}
+\newcommand\Hom{{\operatorname{Hom}}}
+\newcommand\lex{{\operatorname{lex}}}
+\newcommand\Map{{\operatorname{Map}}}
+\newcommand\Mat{{\operatorname{Mat}}}
+\newcommand\Mor{{\operatorname{Mor}}}
+\newcommand\qis{{\operatorname{qis}}}
+\newcommand\red{{\operatorname{red}}}
+\newcommand\rev{{\operatorname{rev}}}
+\newcommand\cart{{\operatorname{cart}}}
+\newcommand\coeq{{\operatorname{coeq}}}
+\newcommand\Flag{{\operatorname{Flag}}}
+\newcommand\Isom{{\operatorname{Isom}}}
+\newcommand\Bilin{{\operatorname{Bilin}}}
+\newcommand\canon{{\operatorname{canon}}}
+\newcommand\revlex{{\operatorname{revlex}}}
+
+
+\newcommand\Bl{\operatorname{Bl}}
+\newcommand\Cl{\operatorname{Cl}}
+\newcommand\gr{\operatorname{gr}}
+\newcommand\im{\operatorname{im}}
+\newcommand\pd{\operatorname{pd}}
+\newcommand\adj{\operatorname{adj}}
+\newcommand\Ann{\operatorname{Ann}}
+\newcommand\Ass{\operatorname{Ass}}
+\newcommand\Aut{\operatorname{Aut}}
+\newcommand\Der{\operatorname{Der}}
+\newcommand\Div{\operatorname{div}}
+\newcommand\DIV{\operatorname{Div}}
+\newcommand\Eig{\operatorname{Eig}}
+\newcommand\End{\operatorname{End}}
+\newcommand\Ext{\operatorname{Ext}}
+\newcommand\Fix{\operatorname{Fix}}
+\newcommand\kod{\operatorname{kod}}
+\newcommand\Kom{\operatorname{Kom}}
+\newcommand\lcm{\operatorname{lcm}}
+\newcommand\Nil{\operatorname{Nil}}
+\newcommand\Orb{\operatorname{Orb}}
+\newcommand\Pic{\operatorname{Pic}}
+\newcommand\rad{\operatorname{rad}}
+\newcommand\rem{\operatorname{rem}}
+\newcommand\Syl{\operatorname{Syl}}
+\newcommand\Sym{\operatorname{Sym}}
+\newcommand\syz{\operatorname{syz}}
+\newcommand\Tor{\operatorname{Tor}}
+\newcommand\Bord{\operatorname{Bord}}
+\newcommand\CaCl{\operatorname{CaCl}}
+\newcommand\coim{\operatorname{coim}}
+\newcommand\cone{\operatorname{cone}}
+\newcommand\Curl{\operatorname{curl}}
+\newcommand\Disc{\operatorname{Disc}}
+\newcommand\Frac{\operatorname{Frac}}
+\newcommand\Grad{\operatorname{grad}}
+\newcommand\mult{\operatorname{mult}}
+\newcommand\Proj{\operatorname{Proj}}
+\newcommand\sign{\operatorname{sign}}
+\newcommand\Spec{\operatorname{Spec}}
+\newcommand\Stab{\operatorname{Stab}}
+\newcommand\Supp{\operatorname{Supp}}
+\newcommand\Triv{\operatorname{Triv}}
+\newcommand\coker{\operatorname{coker}}
+\newcommand\codim{\operatorname{codim}}
+\newcommand\colim{\operatorname{colim}}
+\newcommand\depth{\operatorname{depth}}
+\newcommand\graph{\operatorname{graph}}
+\newcommand\MSpec{\operatorname{MSpec}}
+\newcommand\Slice{\operatorname{Slice}}
+\newcommand\OrBord{\operatorname{OrBord}}
+\newcommand\height{\operatorname{height}}
+
+\newcommand\NL{\mathbb{NL}}
+\newcommand\trdeg{\operatorname{tr.deg}}
+\newcommand\sext{{\operatorname{\mathscr{E}\hspace{-1pt}xt}}}
+\newcommand\shom{{\operatorname{\mathscr{H}\hspace{-1.5pt}om}}}
+\newcommand\tcap{\mathbin
+{\mathmakebox[\widthof{$\cap$}][c]{\top}\mathmakebox[0pt][r]{\cap}}}
+\newcommand\pp[2][]{\frac{\partial#1}{\partial#2}}
+\newcommand\ppn[3][]{\frac{\partial^{#3}#1}{\partial#2^{#3}}}
+\newcommand\ppe[3][]{{\mathmakebox[\widthof{$\displaystyle\frac{\partial#1}
+{\partial#2}|$}][r]{\left.\frac{\partial#1}{\partial#2}\right|}}_{#3}}
+\newcommand\ppne[4][]{{\mathmakebox[\widthof{$\displaystyle\frac{\partial#1^{#3}}
+{\partial#2^{#3}}|$}][r]{\left.\frac{\partial#1}{\partial#2}\right|}}_{#4}}
+\newcommand\tpp[2][]{\partial#1/\partial#2}
+\newcommand\dpp[2][]{\displaystyle\frac{\partial#1}{\partial#2}}
+
+\renewcommand\op{{\operatorname{op}}}
+
+\DeclareFontFamily{U}{mathx}{}
+\DeclareFontShape{U}{mathx}{m}{n}{<-> mathx10}{}
+\DeclareSymbolFont{mathx}{U}{mathx}{m}{n}
+\DeclareMathAccent{\widecheck}{0}{mathx}{"71}
+
+\DeclareSymbolFont{bbold}{U}{bbold}{m}{n}
+\DeclareSymbolFontAlphabet{\mathbbold}{bbold}
+\DeclareMathSymbol{\bbomega}{\mathord}{bbold}{"7F}
+\DeclareMathSymbol{\bbk}{\mathord}{bbold}{"6B}
+\newcommand\ncat[1]{\mathbbold{#1}}
+
+\newcommand\di[1]{\index{#1}\textbf{\textcolor{orange}{#1}}}
+\newcommand\dni[1]{\textbf{\textcolor{orange}{#1}}}
+\newcommand\cbox[1]{\colorbox{gray!20}{#1}}
+\newcommand\dbox[1]{\colorbox{blue!10}{#1}}
+\newcommand\ebox[1]{\colorbox{orange!10}{#1}}
+\newcommand\cbl[1]{\colorbox{red!10}{#1}}
+\newcommand\inj{\mathrel{\hookrightarrow}}
+\newcommand\surj{\mathrel{\twoheadrightarrow}}
+\newcommand\ol[1]{\overline{#1}}
+\newcommand\ul[1]{\underline{#1}}
+\newcommand\wh[1]{\widehat{#1}}
+\newcommand\wt[1]{\widetilde{#1}}
+\newcommand\wc[1]{\widecheck{#1}}
+\renewcommand\leq{\leqslant}
+\renewcommand\geq{\geqslant}
+\renewcommand\mod[1]{\ (\mathrm{mod}\ #1)}
+\renewcommand\preceq{\preccurlyeq}
+\renewcommand\succeq{\succcurlyeq}
+\newcommand\cat[1]{{\textsf{#1}}}
+\newcommand\lsub[2]{\vphantom{#2}_{#1}{#2}}
+\newcommand\lsup[2]{\vphantom{#2}^{#1}{#2}}
+
+\newcommand\circled[1]{\tikz[baseline=(char.base)]{
+\node[shape=circle,draw,inner sep=2pt](char){#1};}}
+
+\newcommand\pagebreaktoggle{}
+\newcommand\nonmath[1]{}
+
+\newcommand\sproj[1]{[Stacks Project \href{https://stacks.math.columbia.edu/tag/#1}{#1}]}
+\newcommand\krd[1]{[Kerodon \href{https://kerodon.net/tag/#1}{#1}]}
+\newcommand\mbook[1]{[Moduli Book \href{https://book.themoduli.space/tag/#1}{#1}]}
+\newcommand\mse[1]{[MSE \href{https://math.stackexchange.com/questions/#1}{#1}]}
+\newcommand\mo[1]{[MO \href{https://mathoverflow.net/questions/#1}{#1}]}
+\newcommand\arxiv[1]{[arXiv \href{https://arxiv.org/abs/math/#1}{#1}]}
+
+\raggedbottom
+\pagestyle{fancy}
+\lhead{\bref{toc}{ToC}\quad\bref{index}{Index}}
+\chead{}
+\rhead{}
+\cfoot{\thepage}
+
+\setlength{\headheight}{15pt}
+\addtolength{\topmargin}{-3pt}
+\setlength{\parindent}{16pt}
+\setlength{\parskip}{6pt}
+\makeatletter
+\g@addto@macro\normalsize{%
+  \setlength\abovedisplayskip{6pt}
+  \setlength\belowdisplayskip{6pt}
+  \setlength\abovedisplayshortskip{3pt}
+  \setlength\belowdisplayshortskip{3pt}
+}
+\makeatother
+\setlist{listparindent=\parindent,parsep=\parsep,itemsep=0pt,topsep=0pt,partopsep=0pt}
+\renewcommand\arraystretch{1}
+\renewcommand\baselinestretch{1.2}
+\allowdisplaybreaks
+\emergencystretch 3em
+\begin{document}
+\def\numberline#1{}
+\hypertarget{toc}{}
+\tableofcontents
+\pagebreak
+
+\section{Composition Series for Primary Ideals}
+\begin{notation}
+All rings will be unital and commutative.
+\end{notation}
+
+\begin{theorem}{}{thm1}
+Let $R$ be a ring. 
+The following are equivalent:
+\begin{enumerate}[label=(\arabic*)]
+\item 
+$R$ is Noetherian and every prime ideal of $R$ is maximal.
+\item
+$R$ is Noetherian and $\dim R=0$.
+\item
+$R$ is of finite length as an $R$-module.
+\item 
+$R$ is Artinian.
+\end{enumerate}
+\end{theorem}
+\begin{proof}
+Eisenbud Theorem 2.14.
+\end{proof}
+
+\begin{corollary}{}{cor1}
+Let $R$ is a Noetherian ring.
+The following are equivalent:
+\begin{enumerate}[label=(\arabic*)]
+\item 
+Every prime ideal of $R$ is maximal.
+\item
+$\dim R=0$.
+\item
+$R$ is of finite length as an $R$-module.
+\item 
+$R$ is Artinian.
+\end{enumerate}
+\end{corollary}
+\begin{proof}
+Follows from \tref{thm1} and the fact that Artinian rings are Noetherian.
+\end{proof}
+
+\begin{corollary}{}{cor2}
+Let $R$ be a Noetherian ring and $\mathfrak{q}$ be a 
+$\mathfrak{p}$-primary ideal of $R$.
+Then $R/\mathfrak{q}$ is of finite length as an $R/\mathfrak{q}$-module 
+if and only if $\mathfrak{p}$ is a maximal ideal of $R$.
+
+Moreover, any $R$-submodule of $R/\mathfrak{q}$ is 
+a $R/\mathfrak{q}$-submodule of $R/\mathfrak{q}$.
+So $R/\mathfrak{q}$ is of finite length as an $R/\mathfrak{q}$-module 
+if and only if $R/\mathfrak{q}$ is of finite length as an $R$-module.
+\end{corollary}
+\begin{proof}
+$R$ is Noetherian implies $R/\mathfrak{q}$ is Noetherian.
+By \cref{cor1}, $R/\mathfrak{q}$ 
+is of finite length as an $R/\mathfrak{q}$-module if and only if
+every prime ideal of $R/\mathfrak{q}$ is maximal,
+which happens if and only if $\mathfrak{p}$ is a maximal ideal of $R$
+(because prime ideals of $R/\mathfrak{q}$ are in bijection 
+with prime ideal of $R$ containing $\mathfrak{q}$).
+
+An $R$-submodule of $R/\mathfrak{q}$ is the quotient of a $R$-submodule of $R$
+containing the $R$-module $\mathfrak{q}$ by the $R$-module $\mathfrak{q}$.
+So it is of the form $I/\mathfrak{q}$ for some ideal $I\subseteq R$ 
+containing $\mathfrak{q}$.
+Since $\mathfrak{q}$ annihilate $I/\mathfrak{q}$, it follows that 
+$I/\mathfrak{q}$ can be viewed as a $R/\mathfrak{q}$.
+Conversely, any $R/\mathfrak{q}$-submodule of $R/\mathfrak{q}$
+can be viewed as an $R$-submodule of $R/\mathfrak{q}$ by the 
+surjective ring homomorphism $R\to R/\mathfrak{q}$.
+\end{proof}
+
+\begin{lemma}{}{lem1}
+Let $R$ be a ring.
+For any ideal $I\subseteq R$ and element $x\in R$, 
+the following is a surjective $R$-module homomorphism:
+\begin{equation*}\begin{array}{r@{}c@{}l}
+R&{}\longrightarrow{}&(I+(x))/I\\
+1&{}\longmapsto{}&x+I\\
+a&{}\longmapsto{}&ax+I
+\end{array}\end{equation*}
+with kennel $(I:x)=\{a\in R\mid ax\in I\}$.
+In particular, there is an $R$-module isomorphism 
+$R/(I:x)\cong(I+(x))/I$.
+\end{lemma}
+\begin{proof}
+The $R$-module homomorphism $R\to(I+(x))/I$ defined by $1\mapsto x+I$ is 
+surjective because $(I+(x))/I$ is generated by $x+I$ as an $R$-module
+(the coset of $(I+(x))/I$ represented by $i+ax\in I+(x)$ is the 
+equal to the coset represented by $ax$ which is the image of $a\in R$).
+
+The kernel of this $R$-module homomorphism is by definition 
+\begin{equation*}
+\{a\in R\mid ax+I=0+I\text{ in }(I+(x))/I\}=\{a\in R\mid ax\in I\}=(I:x)\qedhere
+\end{equation*}
+\end{proof}
+
+\begin{corollary}{}{cor3}
+Let $R$ be a ring.
+For any ideal $I\subseteq R$ and element $x\in R$,
+there is an bijection between the set of ideals $J\subseteq R$ 
+such that $I\subseteq J\subseteq I+(x)$ and the set of ideals
+of $R$ containing $(I:x)$.
+Moreover, the bijection is given by $J\mapsto I+xJ$.
+\end{corollary}
+\begin{proof}
+This follows from the correspondence theorem of submodules applied to the 
+isomorphism $R/(I:x)\cong(I+(x))/I$ in \lref{lem1}.
+The isomorphism is given by $1\mapsto x$, 
+so an ideal $J/(I:x)$ is mapped to the submodule 
+\begin{equation*}
+\frac{I+xJ}{I}\subseteq\frac{I+(x)}{I}=\frac{I+xR}{I}\qedhere
+\end{equation*}
+\end{proof}
+
+\begin{application}
+Let $k$ be a field and $R=k[z_0,\dots,z_{c-1}]$ be a polynomial ring over $k$.
+Let $\mathfrak{m}=(x_0,\dots,x_{n-1})$ be a maximal ideal of $R$
+and $I=(f_0,\dots,f_{r-1})$ be an $\mathfrak{m}$-primary ideal of $R$.
+The weird indexing is to match the indexing of the variables in Macaulay2.
+
+The following is a algorithm to compute a maximal ascending chain of ideals 
+$I=I_0\subsetneq I_1\subsetneq\cdots\subsetneq I_s=\mathfrak{m}$
+containing $I$ up to the maximal ideal $\mathfrak{m}$.
+Taking the quotients of $R$ by this chain gives a composition series of $R/I$.
+\begin{itemize}
+\item
+Define $M_i:=I+(x_0,\dots,x_{i-1})$ for each $i\in\{0,\dots,n\}$.
+\item
+Define $Q_i:=M_{i+1}/M_i$ for each $i\in\{0,\dots,n-1\}$.
+\item 
+Define $J_i:=(M_i:x_i)$ for each $i\in\{0,\dots,n-1\}$.
+\end{itemize}
+We begin the output chain with $I=M_0$ and for each $i\in\{0,\dots,n-1\}$, 
+we attach a maximal ascending chain of ideal of $R$ in between $M_i$ and 
+$M_{i+1}$ (excluding $M_i$ and including $M_{i+1}$) to the output chain.
+There are a three cases:
+\begin{enumerate}[label=Case \arabic*.,align=left]
+\item
+If $Q_i=0$, then $M_{i+1}=M_i$.
+So we do not attach any ideals to the output chain.
+\item
+If $Q_i$ is simple, then we attach $M_{i+1}$ to the output chain.
+\item 
+If $Q_i$ is not simple, we invoke the isomorphism 
+\begin{equation*}
+R/J_i\cong Q_i=M_{i+1}/M_i
+\end{equation*}
+To get a maximal chain of ideals between $M_i$ and $M_{i+1}$,
+we compute a maximal chain of ideals between $J_i$ and $R$, 
+and for each ideal $K$ inside this chain, we attach 
+$M_i+x_iK$ to the output chain (because this is the bijection in \cref{cor3}).
+
+We will not run into an infinite loop because $R/J_i$ necessarity has 
+smaller length than $R/I$ as an $R$-module when $Q_i\not=0$.
+\end{enumerate}
+\end{application}
+
+\section{A Criterion for Ideal of Finite Colength}
+\begin{theorem}{Chinese Remainder Theorem}{thm-crt}
+Let $R$ be a ring and $I,J\subseteq R$ be ideals.
+If $I+J=R$, thenhe injective ring homomorphism 
+\begin{equation*}\begin{array}{r@{}c@{}l}
+\varphi:R/(I\cap J)&{}\longrightarrow{}&R/I\times R/J\\
+a+(I\cap J)&{}\longmapsto{}&(a+I,a+J)
+\end{array}\end{equation*}
+is also surjective.
+In particular, $\varphi$ is an isomorphism
+\end{theorem}
+\begin{proof}
+$I+J=R$ implies there exists $i\in I$ and $j\in J$ such that $1=i+j$.
+Then 
+\begin{equation*}
+\varphi(i+(I\cap J))=(0+I,1+J)\qquad\text{and}\qquad
+\varphi(j+(I\cap J))=(1+I,0+J)
+\end{equation*}
+Thus for any $(a+I,b+J)\in R/I\times R/J$, we have
+\begin{equation*}
+\varphi(bi+aj+(I\cap J))=(a+I,b+J)\qedhere
+\end{equation*}
+\end{proof}
+
+\begin{lemma}{}{lem-crt}
+Let $R$ be a ring and $I_1,\dots,I_n,J\subseteq R$ be ideals.
+Then 
+\begin{equation*}
+(I_1\cap\cdots\cap I_n)+J\subseteq(I_1+J)\cap\cdots\cap(I_n+J)
+\end{equation*}
+Moreover, if $I_1+J=\cdots=I_n+J=R$, the equality holds.
+\end{lemma}
+\begin{proof}
+$(I_1\cap\cdots\cap I_n)+J\subseteq(I_1+J)\cap\cdots\cap(I_n+J)$ is clear.
+Suppose $I_1+J=\cdots=I_n+J=R$.
+Then for each $i\in\{1,\dots,n\}$, there exists $a_i\in I_i$ and $b_i\in J$
+such that $1=a_i+b_i$.
+If follows that
+\begin{equation*}
+1=(a_1+b_1)\cdots(a_n+b_n)=(a_1\cdots a_n)+
+\underbrace{\cdots}_{\mathmakebox[0pt][c]
+{\text{all remaining term has a factor of some $b_i$, so it is in $J$}}}
+\in(I_1\cap\cdots\cap I_n)+J.
+\end{equation*}
+So $(I_1\cap\cdots\cap I_n)+J=R=(I_1+J)\cap\cdots\cap(I_n+J)$.
+\end{proof}
+
+\begin{corollary}{Chinese Remainder Theorem}{cor-crt}
+Let $R$ be a ring and $I_1,\dots,I_n\subseteq R$ be ideals
+such that $I_i+I_j=R$ for all distinct $i,j\in\{1,\dots,n\}$.
+Then 
+\begin{equation*}
+\frac{R}{I_1\cap\cdots\cap I_n}\cong\frac{R}{I_1}\times\cdots\times\frac{R}{I_n}
+\end{equation*}
+\end{corollary}
+\begin{proof}
+We have the chain of equalities by \tref{thm-crt}:
+\begin{equation*}
+\frac{R}{I_1\cap\cdots\cap I_n}\cong\frac{R}{I_1\cap\cdots\cap I_{n-1}}\times\frac{R}{I_n}
+\cong\cdots\cong\frac{R}{I_1\cap I_2}\times\frac{R}{I_3}\times\cdots\times\frac{R}{I_n}
+\cong\frac{R}{I_1}\times\cdots\times\frac{R}{I_n}
+\end{equation*}
+For the $i$-th isomorphism, the assumption we need to verify in order to 
+invoke \tref{thm-crt} is that $(I_1\cap\cdots\cap I_{i-1})+I_i=R$.
+This follows from \lref{lem-crt} and the assumption that 
+$I_j+I_i=R$ for all $j\in\{1,\dots,i-1\}$.
+\end{proof}
+
+\begin{lemma}{}{lem4}
+Let $R$ be a ring and $\mathfrak{q}_1$ be a $\mathfrak{p}_1$-primary ideal
+and $\mathfrak{q}_2$ be a $\mathfrak{p}_2$-primary ideal of $R$.
+If $\mathfrak{p}_1+\mathfrak{p}_2=R$, then $\mathfrak{q}_1+\mathfrak{q}_2=R$. 
+\end{lemma}
+\begin{proof}
+Suppose $\mathfrak{p}_1+\mathfrak{p}_2=R$, then there exists 
+$a\in\mathfrak{p}_1$ and $b\in\mathfrak{p}_2$ such that $a+b=1$.
+Since $\mathfrak{p}_1=\sqrt{\mathfrak{q}_1}$ and 
+$\mathfrak{p}_2=\sqrt{\mathfrak{q}_2}$,
+it follows that there exists $m,n\in\mathbb{Z}_{>0}$ such that
+$a^m\in\mathfrak{q}_1$ and $b^n\in\mathfrak{q}_2$.
+Then 
+\begin{equation*}
+1=(a+b)^{m+n}\in\mathfrak{q}_1+\mathfrak{q}_2\qedhere
+\end{equation*}
+\end{proof}
+
+\begin{theorem}{}{thm2}
+Let $R$ be a noetherian ring and $I$ be a proper ideal
+so that $I$ admit a primary decomposition 
+$I=\mathfrak{q}_1\cap\cdots\cap\mathfrak{q}_n$.
+Let $\MSpec(R)=\{\text{maximal ideals of }R\}$ and 
+$\Ass(I)=\{\mathfrak{p}_1\cap\cdots\cap\mathfrak{p}_n\}$
+where $\mathfrak{p}_i=\sqrt{\mathfrak{q}_i}$.
+
+Then $R/I$ is of finite length as an $R$-module if and only if 
+the $\Ass(I)\subseteq\MSpec(R)$.
+\end{theorem}
+\begin{proof}
+Suppose $\Ass(I)\subseteq\MSpec(R)$.
+Then each $\mathfrak{p}_i$ is a maximal ideal and 
+$\mathfrak{p}_i+\mathfrak{p}_j=R$ for distinct $i,j\in\{1,\dots,n\}$
+since maximal ideals are pairwise comaximal.
+
+Then by \lref{lem4}, we have $\mathfrak{q}_i+\mathfrak{q}_j=R$ 
+for distinct $i,j\in\{1,\dots,n\}$.
+By \cref{cor-crt}, we have
+\begin{equation*}
+\frac{R}{I}=\frac{R}{\mathfrak{q}_1\cap\cdots\cap\mathfrak{q}_n}
+\cong\frac{R}{\mathfrak{q}_1}\times\cdots\times\frac{R}{\mathfrak{q}_n}
+\end{equation*}
+By \cref{cor2}, each $R/\mathfrak{q}_i$ is of finite length as $R$-modules 
+because $\mathfrak{p}_i=\sqrt{\mathfrak{q}_i}$ is a maximal ideal.
+Product of finite length modules is of finite length,
+so $R/I$ is of finite length as an $R$-module.
+
+Conversely, suppose $\Ass(I)\not\subseteq\MSpec(R)$.
+Then there exists $i\in\{1,\dots,n\}$ such that $\mathfrak{p}_i$ 
+is not a maximal ideal.
+Now $I=\mathfrak{q}_1\cap\cdots\cap\mathfrak{q}_n\subseteq
+\mathfrak{q}_i\subseteq\mathfrak{p}_n$ which implies 
+there exists a surjective ring homomorphism $R/I\to R/\mathfrak{p_i}$.
+Since $\mathfrak{p}_i$ is a prime ideal but not a maximal ideal,
+It follows that $\dim R/\mathfrak{p}_i\geq1$.
+Then $\dim R/I\geq1$ as well which implies 
+$R/I$ is not of finite length as an $R/I$-module by \cref{cor1}.
+By \cref{cor2}, $R/I$ is not of finite length as an $R$-module.
+\end{proof}
+
+\pagebreak
+
+\printindex
+\hypertarget{index}{}
+\phantomsection
+\addcontentsline{toc}{section}{Index}
+\end{document}
