@@ -189,7 +189,7 @@ hilbertSamuelFunctionTest (Module, ZZ, ZZ) := List => (M, n0, n1) -> (
     m := max RP;
     Lm := RP.maxIdeal;
     R := ring Lm;
-    k := frac(R/Lm);  -- same as residue field because (R_p/p*R_p) = (R/p)_0 = frac(R/p)
+    k := frac(R/Lm);  -- same as residue field because (R_p/p*R_p) = (R/p)_(0) = frac(R/p)
                       -- localization is an exact functor 
                       -- Apply localize at Lm to the exact sequence 0 -> Lm -> R -> R/Lm -> 0
     LM := minimalPresentation liftUp(localMinimalPresentationHookCopy M);
@@ -221,6 +221,8 @@ res I
 Rlocal = localRing(R,maxR)
 Ilocal = I ** Rlocal
 
+peek Rlocal
+
 time hilbertSamuelFunction(module Ilocal,0,6)           -- took my laptop about 5 seconds in 2026
 time hilbertSamuelFunction(module Ilocal,7,8)           -- took my laptop about 10 seconds in 2026
 time hilbertSamuelFunction(module Ilocal,9,10)          -- took my laptop about 30 seconds in 2026
@@ -231,7 +233,11 @@ time hilbertSamuelFunctionTest(module Ilocal,0,6)
 time hilbertSamuelFunctionTest(module Ilocal,7,8)           
 time hilbertSamuelFunctionTest(module Ilocal,9,10)          
 time hilbertSamuelFunctionTest(module Ilocal,11,12)         
-time hilbertSamuelFunctionTest(module Ilocal,0,20)          
+time hilbertSamuelFunctionTest(module Ilocal,10,20)    
+
+M = module Ilocal
+liftUp(localMinimalPresentationHookCopy M)
+localMinimalPresentationHookCopy M
 
 profile(time hilbertSamuelFunction(module Ilocal,0,6))
 profile(time hilbertSamuelFunctionTest(module Ilocal,0,12))

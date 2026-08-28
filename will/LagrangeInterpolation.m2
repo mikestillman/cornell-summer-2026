@@ -103,38 +103,22 @@ SeeAlso
 -*
 
 -* Test section *-
--- NOTE: currently the tests do not run -- they 
--- error with "error: expected pair to have a method for '=='"
--- this makes it sound like equality checking is not defined for one of the
--- types?
 TEST /// -* Positive tests for lagrangeBasis *-
     x = (ring lagrangeBasis({0,1},0))_0
     assert(lagrangeBasis({3,6},1) == 1/3*x - 1)
     assert(lagrangeBasis({3,6},0) == -1/3*x + 2)
     assert(lagrangeBasis({-1,0,1},1) == -x^2 + 1)
-
-
-
-
-
-
---    use QQ[z]
---    assert(sub(lagrangeBasis({3,6},1),{(ring lagrangeBasis({3,6},1))_0 => z}) == 1/3*z - 1)
---    assert(sub(lagrangeBasis({3,6},0),{(ring lagrangeBasis({3,6},0))_0 => z}) == -1/3*z + 2)
---    assert(sub(lagrangeBasis({-1,0,1},1),{(ring lagrangeBasis({-1,0,1},1))_0 => z}) == -z^2 + 1)
 ///
 
 TEST 
 /// -* Positive tests for lagrangeInterpolation *-
     x = (ring lagrangeBasis({0,1},0))_0
-    
+
     assert(lagrangeInterpolation({{0,0},{1,1}}) == x)
     assert(lagrangeInterpolation({{0,0},{1,1},{2,2}}) == x)
     assert(lagrangeInterpolation({{0,0},{1,1},{2,2},{3,3}}) == x)
     assert(lagrangeInterpolation({{0,0},{1,1},{2,2},{3,3},{4,4}}) == x)
-
     assert(lagrangeInterpolation({{0,1},{2,3},{4,5}}) == x+1)
-
     assert(lagrangeInterpolation({{1,1},{2,4},{3,9}}) == x^2)
 /// 
 
@@ -147,6 +131,21 @@ TEST
     assert(matchPolynomial({1,4,9,16,25}) == {x^2 + 2*x + 1, {1,4,9,16,25}})
     assert(matchPolynomial({10,20,30,40,41,42,43,44}) == {x+37, {37,38,39,40,41,42,43,44}})
 ///
+
+
+
+
+end--
+
+-* Development section *-
+restart
+needsPackage "LagrangeInterpolation"
+check "LagrangeInterpolation"
+
+uninstallPackage "LagrangeInterpolation"
+restart
+installPackage "LagrangeInterpolation"
+viewHelp "LagrangeInterpolation"
 
 
 
@@ -187,17 +186,6 @@ matchPolynomial({10,20,30,40,41,42,43,44})
    -- should return {x+37, {37,38,39,40,41,42,43,44}}
 
 
-end--
-
--* Development section *-
-restart
-needsPackage "LagrangeInterpolation"
-check "LagrangeInterpolation"
-
-uninstallPackage "LagrangeInterpolation"
-restart
-installPackage "LagrangeInterpolation"
-viewHelp "LagrangeInterpolation"
 
 -- some extra tests using hilbertSamuel
 
