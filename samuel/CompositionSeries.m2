@@ -52,15 +52,16 @@ compositionSeries(Ideal) := List => (I) -> (
     L = apply(PD, J -> radical J);
     -- this should be the same as L as a set, but does it change order?
     -- if not this line can be omitted.
-    if not #L == #PD then error "associated prime should have the same length as primary decomposition?";
-    -- is this true?
 
-    M := append(for i from 1 to #PD-1 list intersect(PD_{i..#PD-1}),sub(ideal 1,ring I));
-    flatten(for i from 0 to #PD-1 list apply(compositionSeriesPrimary(PD#i), J -> intersect(M_i, J)))
+    M := for i from 1 to #PD-1 list intersect(PD_{i..#PD-1});
+    M = append(M,ideal(1_(ring I)));
+    flatten(for i from 0 to #PD-1 list 
+        apply(compositionSeriesPrimary(PD#i), J -> intersect(M_i, J)))
 )
 
 compositionSeriesPrimary = method()
 compositionSeriesPrimary(Ideal) := (I) -> (
+    -- I should be a m-primary ideal for some maximal ideal m.
     m := radical I;
     x := m_*;
     n := #x;
@@ -152,6 +153,19 @@ TEST ///
 R = QQ[x]
 I = ideal((x-1)^2*(x+1)^2)
 assert(compositionSeries(I) == {ideal((x-1)^2*(x+1)^2), ideal((x-1)*(x+1)^2), ideal((x+1)^2), ideal(x+1)})
+///
+
+TEST ///
+R = QQ[x,y,z]
+I = intersect(ideal(x,y^3,z^2),ideal(x^2+1,y-1,(z-2)^2))
+compositionSeries(I) 
+
+
+L = compositionSeries(I)
+prune(L#1/L#0)
+assert all for i from 1 to #L-1 list (
+    isSimple(L#i/L#(i-1))
+)
 ///
 
 end--

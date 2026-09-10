@@ -252,3 +252,34 @@ time hilbertSamuelFunction(module Nlocal,0,5)           -- about 25s depending o
 time hilbertSamuelFunctionTest(module Nlocal,0,5)       -- as low as 0.05s
 time hilbertSamuelFunctionTest(module Nlocal,0,12)      -- about 1s depending on rng
 
+
+
+
+
+
+
+
+
+needsPackage "CompositionSeries"
+needsPackage "LocalRings"
+
+R = ZZ/101[x,y,z,w]
+P = monomialCurveIdeal(R, {1,2,3})
+I = ideal(P_0^2,P_1^3,P_2)
+I = ideal(P_0^2,P_1^2,P_2)
+A = localRing(R,P)
+J = sub(I,A)
+compositionSeries(J)
+codim J
+primaryDecomposition J
+
+hilbertSamuelFunction(A^1/J,0,10)
+
+prune(P/I)
+(P:I)
+(I:P)
+(I:P) == P
+isSubset(P,I:P)
+
+primaryDecomposition(I)
+oo/radical
