@@ -10,7 +10,7 @@ newPackage(
     DebuggingMode => false
     )
 
-export {"isSimple", "compositionSeries"}
+export {"isSimple", "compositionSeries", "isFiniteLength"}
 
 -* Code section *-
 
@@ -41,11 +41,32 @@ isSimple(Module) := Boolean => (M) -> (
     isMaximal I
 )
 
+isFiniteColength = method()
+isFiniteColength(Ideal) := Boolean => (I) -> (
+    if I == ideal ring I then return true;
+    L := associatedPrimes I;
+    all(L, isMaximal)
+)
+
+--todo:
+isFiniteLength = method()
+isFiniteLength(Module) := Boolean => (M) -> (
+    R := ring M;
+    N := prune M;
+    n := numgens N;
+    L := for i from 0 to n-1 list R*N_i;
+    K := prepend(L_0,accumulate((A,B) -> A + B, L));
+    Q := for i from 0 to n-1 list prune(K_(i+1)/K_i);
+    all(ideal flatten entries relations Q, isFiniteColength)
+)
+
+
 compositionSeries = method()
 compositionSeries(Ideal) := List => (I) -> (
     L := associatedPrimes I;
     -- Theorem: R/I is of finite length if and only if Ass(I) consists of all maximal ideals.
-    if not all(L, isMaximal) then error "Input is not an ideal of finite colength";
+    if not isFiniteColength(I) then error "Input is not an ideal of finite colength";
+    if I == ideal ring I then return {};
     if #L == 1 then return compositionSeriesPrimary(I);
 
     PD := primaryDecomposition I;
@@ -57,6 +78,10 @@ compositionSeries(Ideal) := List => (I) -> (
     M = append(M,ideal(1_(ring I)));
     flatten(for i from 0 to #PD-1 list 
         apply(compositionSeriesPrimary(PD#i), J -> intersect(M_i, J)))
+)
+compositionSeries(Module) := List => (M) -> (
+    if not isFiniteLength(M) then error "Input is not a module of finite length";
+    -- todo
 )
 
 compositionSeriesPrimary = method()
@@ -210,24 +235,59 @@ compositionSeries(Module) := List => (M) -> (
     -- \subset (lift of R/J_1*((x_1,x_2)/(x_1)) to (x_1,x_2))...
 )
 
--- some code to help see what is going on under the hood
-R = ZZ/101[x]
-I = ideal(x^2*(x-1)^2)
-compositionSeries(I)
-L = associatedPrimes I
-PD = primaryDecomposition I
-M = append(for i from 1 to #PD list intersect(PD_{i..#PD-1}),sub(ideal 1,R))
 
-compositionSeriesPrimary(PD#0)
-compositionSeriesPrimary(PD#1)
+R = QQ[x,y,z]
+M = cokernel matrix{{x^2,y^2,z^2},{x^3,y^3,z^3}}
+C = res M
+L = dd^C_1
+(minimalPresentation M)
+gens M
+submodule((gens M)_0)
 
-apply(compositionSeriesPrimary(PD#0), J -> intersect(M#0, J))
-apply(compositionSeriesPrimary(PD#1), J -> intersect(M#1, J))
+M
+R*M_1
+M/(R*M_1)
+prune(M/(R*M_1))
+prune(R*M_1)
+peek oo
+flatten entries relations o75
+ideal flatten entries relations o75
+
+R*M_1+R*M_0
+oo == M
+
+for i from 0 to 5 list toList(0..i)
 
 
+peek M
+
+R*M_0
+R*M_1
+R*M_0+R*M_1
+
+isFiniteLength(Module) := Boolean => (M) -> (
+    R := ring M;
+    N := prune M;
+    n := numgens N;
+    L := for i from 0 to n-1 list R*N_i;
+    K := accumulate(L, (A,B) -> A + B);
+    Q := for i from 0 to n-1 list prune(K_(i+1)/K_i);
+    all(ideal flatten entries relations Q, isFiniteLength)
+)
 
 
+R = ZZ/101[x,y,z]
 
+M = cokernel matrix{{x^2,y^2,z^2},{x^3,y^3,z^3},{x^4,y^4,z^4},{x^5,y^5,z^5}}
+n = numgens M
+L = for i from 0 to n-1 list R*M_i
+K = prepend(L_0,accumulate((A,B) -> A + B,L))
+Q = prepend(prune K_0, for i from 1 to n-1 list prune(K_i/K_(i-1)))
+
+prune K_0
+R
+ideal R
+isFiniteLength(ideal R)
 
 -- a different approach that seems to work decently well.
 -- but I feel like it is less general than Mike's suggestion.
