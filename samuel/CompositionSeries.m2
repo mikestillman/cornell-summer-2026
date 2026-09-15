@@ -10,9 +10,22 @@ newPackage(
     DebuggingMode => false
     )
 
-export {"isSimple", "compositionSeries", "isFiniteLength"}
+export {"getRelations", 
+        "isMaximal", 
+        "isSimple", 
+        "isFiniteColength",
+        "isFiniteLength",
+        "compositionSeries"}
 
 -* Code section *-
+
+getRelations = method()
+getRelations(Module) := (M) -> (
+    N := prune M;
+    if not numgens N == 1 then error "Expect cyclic module";
+    if N == (ring M)^1 then return ideal(0_(ring M));
+    return ideal flatten entries relations(N);
+)
 
 isMaximal = method()
 isMaximal(Ideal) := Boolean => (I) -> (
@@ -43,45 +56,22 @@ isSimple(Module) := Boolean => (M) -> (
 
 isFiniteColength = method()
 isFiniteColength(Ideal) := Boolean => (I) -> (
-    if I == ideal ring I then return true;
+    if I == ideal(1_(ring I)) then return true;
+    -- Theorem: For a proper ideal I, R/I is of finite length 
+    -- if and only if Ass(I) consists of all maximal ideals.
     L := associatedPrimes I;
     all(L, isMaximal)
 )
 
---todo:
 isFiniteLength = method()
 isFiniteLength(Module) := Boolean => (M) -> (
     R := ring M;
     N := prune M;
     n := numgens N;
-    L := for i from 0 to n-1 list R*N_i;
-    K := prepend(L_0,accumulate((A,B) -> A + B, L));
-    Q := for i from 0 to n-1 list prune(K_(i+1)/K_i);
-    all(ideal flatten entries relations Q, isFiniteColength)
-)
-
-
-compositionSeries = method()
-compositionSeries(Ideal) := List => (I) -> (
-    L := associatedPrimes I;
-    -- Theorem: R/I is of finite length if and only if Ass(I) consists of all maximal ideals.
-    if not isFiniteColength(I) then error "Input is not an ideal of finite colength";
-    if I == ideal ring I then return {};
-    if #L == 1 then return compositionSeriesPrimary(I);
-
-    PD := primaryDecomposition I;
-    L = apply(PD, J -> radical J);
-    -- this should be the same as L as a set, but does it change order?
-    -- if not this line can be omitted.
-
-    M := for i from 1 to #PD-1 list intersect(PD_{i..#PD-1});
-    M = append(M,ideal(1_(ring I)));
-    flatten(for i from 0 to #PD-1 list 
-        apply(compositionSeriesPrimary(PD#i), J -> intersect(M_i, J)))
-)
-compositionSeries(Module) := List => (M) -> (
-    if not isFiniteLength(M) then error "Input is not a module of finite length";
-    -- todo
+    L := for i from 0 to n-1 list R*M_i;
+    K := prepend(L_0,accumulate((x,y) -> x+y,L));
+    Q := prepend(prune K_0,for i from 1 to #K-1 list prune(K_i/K_(i-1)));
+    all(apply(Q,getRelations),isFiniteColength)
 )
 
 compositionSeriesPrimary = method()
@@ -115,6 +105,33 @@ compositionSeriesPrimary(Ideal) := (I) -> (
     );
     return output
 )
+
+compositionSeries = method()
+compositionSeries(Ideal) := List => (I) -> (
+    if not isFiniteColength(I) then error "Input is not an ideal of finite colength";
+    L := associatedPrimes I;
+    -- Question for Mike: since associatedPrimes is already done in isFiniteColength once,
+    -- does that get cached and how does one check this?
+    -- If not, how can we avoid recomputing it?
+    if I == ideal(1_(ring I)) then return {};
+    if #L == 1 then return compositionSeriesPrimary(I);
+
+    PD := primaryDecomposition I;
+    L = apply(PD, J -> radical J);
+    -- this should be the same as L as a set, but does it change order?
+    -- if not this line can be omitted.
+
+    M := for i from 1 to #PD-1 list intersect(PD_{i..#PD-1});
+    M = append(M,ideal(1_(ring I)));
+    flatten(for i from 0 to #PD-1 list 
+        apply(compositionSeriesPrimary(PD#i), J -> intersect(M_i, J)))
+)
+compositionSeries(Module) := List => (M) -> (
+    if not isFiniteLength(M) then error "Input is not a module of finite length";
+    -- todo
+)
+
+
 
 -* Documentation section *-
 beginDocumentation()
@@ -160,24 +177,50 @@ SeeAlso
 ///
 
 -* Test section *-
+
+
+
+
 TEST ///
 R = QQ[x]
+
+assert(not isMaximal(ideal(1_R)))
+assert(not isMaximal(ideal(0_R)))
+assert(    isMaximal(ideal(x)))
+assert(not isMaximal(ideal(x^2)))
+assert(not isMaximal(ideal(x*(x+1))))
+
+assert(    isFiniteColength(ideal(1_R)))
+assert(not isFiniteColength(ideal(0_R)))
+assert(    isFiniteColength(ideal(x)))
+assert(    isFiniteColength(ideal(x^2)))
+assert(    isFiniteColength(ideal(x*(x+1))))
+
 I = ideal(x^3)
 assert(compositionSeries(I) == {ideal(x^3), ideal(x^2), ideal(x)})
+I = ideal((x-1)^2*(x+1)^2)
+assert(compositionSeries(I) == {ideal((x-1)^2*(x+1)^2), ideal((x-1)*(x+1)^2), ideal((x+1)^2), ideal(x+1)})
 ///
 
 TEST ///
 R = QQ[x,y]
-I = ideal(x^2,y^2)
-assert(compositionSeries(I) == {ideal(x^2,y^2), ideal(x^2,x*y,y^2), ideal(x,y^2), ideal(x,y)})
+
+assert(not isMaximal(ideal(1_R)))
+assert(not isMaximal(ideal(0_R)))
+assert(not isMaximal(ideal(x)))
+assert(    isMaximal(ideal(x,y)))
+assert(not isMaximal(ideal(x*y)))
+
+assert(    isFiniteColength(ideal(1_R)))
+assert(not isFiniteColength(ideal(0_R)))
+assert(not isFiniteColength(ideal(x)))
+assert(    isFiniteColength(ideal(x,y)))
+assert(    isFiniteColength(ideal(x*y)))
+
 I = ideal(x^3,y)
 assert(compositionSeries(I) == {ideal(x^3,y), ideal(x^2,y), ideal(x,y)})
-///
-
-TEST ///
-R = QQ[x]
-I = ideal((x-1)^2*(x+1)^2)
-assert(compositionSeries(I) == {ideal((x-1)^2*(x+1)^2), ideal((x-1)*(x+1)^2), ideal((x+1)^2), ideal(x+1)})
+I = ideal(x^2,y^2)
+assert(compositionSeries(I) == {ideal(x^2,y^2), ideal(x^2,x*y,y^2), ideal(x,y^2), ideal(x,y)})
 ///
 
 TEST ///
@@ -235,59 +278,80 @@ compositionSeries(Module) := List => (M) -> (
     -- \subset (lift of R/J_1*((x_1,x_2)/(x_1)) to (x_1,x_2))...
 )
 
-
-R = QQ[x,y,z]
-M = cokernel matrix{{x^2,y^2,z^2},{x^3,y^3,z^3}}
-C = res M
-L = dd^C_1
-(minimalPresentation M)
-gens M
-submodule((gens M)_0)
-
-M
-R*M_1
-M/(R*M_1)
-prune(M/(R*M_1))
-prune(R*M_1)
-peek oo
-flatten entries relations o75
-ideal flatten entries relations o75
-
-R*M_1+R*M_0
-oo == M
-
-for i from 0 to 5 list toList(0..i)
-
-
-peek M
-
-R*M_0
-R*M_1
-R*M_0+R*M_1
-
-isFiniteLength(Module) := Boolean => (M) -> (
-    R := ring M;
+getRelations = method()
+getRelations(Module) := (M) -> (
     N := prune M;
-    n := numgens N;
-    L := for i from 0 to n-1 list R*N_i;
-    K := accumulate(L, (A,B) -> A + B);
-    Q := for i from 0 to n-1 list prune(K_(i+1)/K_i);
-    all(ideal flatten entries relations Q, isFiniteLength)
+    if not numgens N == 1 then error "Expect cyclic module";
+    if N == (ring M)^1 then return ideal(0_(ring M));
+    return ideal flatten entries relations(N);
 )
 
 
 R = ZZ/101[x,y,z]
-
-M = cokernel matrix{{x^2,y^2,z^2},{x^3,y^3,z^3},{x^4,y^4,z^4},{x^5,y^5,z^5}}
+M = cokernel matrix{{1,1,1},{x,y,z},{x^2,y^2,z^2},{x^3,y^3,z^3},{x^4,y^4,z^4},{x^5,y^5,z^5}}
+M = cokernel matrix{{x,y,z,0,0,0,0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0},
+                    {0,0,0,x,y,z,0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0},
+                    {0,0,0,0,0,0,x^2,y^2,z^2,0,  0,  0,  0,  0,  0,  0,  0,  0},
+                    {0,0,0,0,0,0,0,  0,  0,  x^3,y^3,z^3,0,  0,  0,  0,  0,  0},
+                    {0,0,0,0,0,0,0,  0,  0,  0,  0,  0,  x^4,y^4,z^4,0,  0,  0},
+                    {0,0,0,0,0,0,0,  0,  0,  0,  0,  0,  0,  0,  0,  x^5,y^5,z^5}}
 n = numgens M
-L = for i from 0 to n-1 list R*M_i
-K = prepend(L_0,accumulate((A,B) -> A + B,L))
-Q = prepend(prune K_0, for i from 1 to n-1 list prune(K_i/K_(i-1)))
 
-prune K_0
-R
-ideal R
-isFiniteLength(ideal R)
+
+L = for i from 0 to n-1 list R*M_i
+K = prepend(L_0,accumulate((x,y) -> x+y,L))
+Q = prepend(prune K_0,for i from 1 to #K-1 list prune(K_i/K_(i-1)))
+
+all(apply(Q,getRelations),isFiniteColength)
+ideal flatten entries relations(Q_0)
+getRelations(Q_0)
+
+L = apply(Q,getRelations)
+isFiniteColength(L_0)
+
+Q_0
+N = prune Q_0
+numgens N
+N == R^1
+ideal flatten entries relations(Q_0)
+
+
+
+ideal 1_R == ideal R
+ideal 0_R == ideal R
+ideal 1_R == ideal module R
+ideal 0_R == ideal module R
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+-- Question for Mike:
+-- I think M = R oplus R/ideal(x,y,z) oplus R/ideal(x^2,y^2,z^2) oplus R/ideal(x^3,y^3,z^3) oplus R/ideal(x^4,y^4,z^4) oplus R/ideal(x^5,y^5,z^5)
+-- so R*M_1 should be the second summand which is R/ideal(x,y,z)
+-- but why does pruning it give me R^1?
+R*M_1
+prune(R*M_1)
+R*M_2
+prune(R*M_2)
+
+M_0
+M_1
+
 
 -- a different approach that seems to work decently well.
 -- but I feel like it is less general than Mike's suggestion.
