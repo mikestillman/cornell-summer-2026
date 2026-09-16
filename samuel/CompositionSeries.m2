@@ -128,7 +128,27 @@ compositionSeries(Ideal) := List => (I) -> (
 )
 compositionSeries(Module) := List => (M) -> (
     if not isFiniteLength(M) then error "Input is not a module of finite length";
-    -- todo
+
+    R := ring M;
+    N := prune M;
+    n := numgens N;
+    L := for i from 0 to n-1 list R*N_i;
+    K := prepend(L_0,accumulate((x,y) -> x+y,L));
+    Q := prepend(prune K_0,for i from 1 to #K-1 list prune(K_i/K_(i-1)));
+    I := apply(Q,getRelations);
+    -- Question for Mike: this is repeat (from isFiniteLength) again which I feel like I should avoid.
+    -- should I make another function that does this routine and output the things I need?
+    V := for i from 0 to n-1 list matrix apply(entries N_i, x -> {x});
+    f := for i from 0 to n-1 list map(N,R^1,V_i);
+    g := for i from 0 to n-1 list inducedMap(image f_i,R^1,f_i);
+    if not apply(g,image) == L then error "unexpected";
+    h := for i from 0 to n-1 list inducedMap(K_i,L_i);
+    C := apply(I,compositionSeries);
+    inc := for i from 0 to n-1 list apply(C_i, J -> inducedMap(R^1,module J));
+    im := for i from 0 to n-1 list apply(inc_i, iota -> image(h_i * g_i * iota));
+    output := prepend(im_0,for i from 1 to n-1 list(apply(im_i, Rmod -> Rmod + K_(i-1))));
+    return flatten output
+    -- use pruning map to get a chain for M instead of N
 )
 
 
@@ -215,7 +235,7 @@ assert(    isFiniteColength(ideal(1_R)))
 assert(not isFiniteColength(ideal(0_R)))
 assert(not isFiniteColength(ideal(x)))
 assert(    isFiniteColength(ideal(x,y)))
-assert(    isFiniteColength(ideal(x*y)))
+assert(not isFiniteColength(ideal(x*y)))
 
 I = ideal(x^3,y)
 assert(compositionSeries(I) == {ideal(x^3,y), ideal(x^2,y), ideal(x,y)})
@@ -298,31 +318,21 @@ M = cokernel matrix{{x,y,z,0,0,0,0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0},
 n = numgens M
 
 
-L = for i from 0 to n-1 list R*M_i
-K = prepend(L_0,accumulate((x,y) -> x+y,L))
-Q = prepend(prune K_0,for i from 1 to #K-1 list prune(K_i/K_(i-1)))
 
-all(apply(Q,getRelations),isFiniteColength)
-ideal flatten entries relations(Q_0)
-getRelations(Q_0)
-
-L = apply(Q,getRelations)
-isFiniteColength(L_0)
-
-Q_0
-N = prune Q_0
-numgens N
-N == R^1
-ideal flatten entries relations(Q_0)
-
-
-
+-- Question for Mike:
+-- what's going on with these?
+R = ZZ/101[x,y,z]
 ideal 1_R == ideal R
 ideal 0_R == ideal R
 ideal 1_R == ideal module R
 ideal 0_R == ideal module R
 
 
+R = QQ[x,y,z]
+I = ideal(y^4)
+J = ideal(y)
+compositionSeries(J/I)
+M = J/I
 
 
 
@@ -334,23 +344,56 @@ ideal 0_R == ideal module R
 
 
 
+-- compositionSeries example 
+R = ZZ/101[x,y,z]
+M = cokernel matrix{{x,y,z,0,0,0,0,0,0},
+                    {0,0,0,x^2,y^2,z^2,0,0,0},
+                    {0,0,0,0,0,0,x^3,y^3,z^3}}
+N = prune M
+n = numgens N
+L = for i from 0 to n-1 list R*N_i
+K = prepend(L_0,accumulate((x,y) -> x+y,L))
+Q = prepend(K_0,for i from 1 to #K-1 list K_i/K_(i-1))
+I = apply(Q,getRelations)
+V = for i from 0 to n-1 list matrix apply(entries N_i, x -> {x})
+-- I want to define map from R^1 to Q_0,Q_1,...,Q_(n-1)
+-- which sends 1 to the generator N_i of each Q_i 
+-- V_i is the matrix for that
+-- map(Q_0,R^1,V_0) does not work though, presumably because Q_0 is a subquotient
+map(Q_0,R^1,V_0)
+Q_0
+V_0
+
+map(Q_1,R^1,V_1)
+Q_1
+V_1
+-- but the following works.
+-- the image of f_i is by definition R*N_i = L_i
+f = for i from 0 to n-1 list map(N,R^1,V_i)
+g = for i from 0 to n-1 list inducedMap(image f_i,R^1,f_i)
+h = for i from 0 to n-1 list inducedMap(K_i,L_i)
+  apply(f,image) == L
+  apply(g,image) == L
+C = apply(I,compositionSeries)
+inc = for i from 0 to n-1 list apply(C_i, J -> inducedMap(R^1,module J))
+im = for i from 0 to n-1 list apply(inc_i, iota -> image(h_i * g_i * iota))
+output = prepend(im_0,for i from 1 to n-1 list(apply(im_i, Rmod -> Rmod + K_(i-1))))
+
+netList oo
+#ooo
+
+image f_0
+
+phi = inducedMap(image f_0,R^1,f_0)
+source phi
+target phi
 
 
 
 
 
 
--- Question for Mike:
--- I think M = R oplus R/ideal(x,y,z) oplus R/ideal(x^2,y^2,z^2) oplus R/ideal(x^3,y^3,z^3) oplus R/ideal(x^4,y^4,z^4) oplus R/ideal(x^5,y^5,z^5)
--- so R*M_1 should be the second summand which is R/ideal(x,y,z)
--- but why does pruning it give me R^1?
-R*M_1
-prune(R*M_1)
-R*M_2
-prune(R*M_2)
 
-M_0
-M_1
 
 
 -- a different approach that seems to work decently well.
