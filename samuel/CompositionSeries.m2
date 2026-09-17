@@ -128,7 +128,6 @@ compositionSeries(Ideal) := List => (I) -> (
 )
 compositionSeries(Module) := List => (M) -> (
     if not isFiniteLength(M) then error "Input is not a module of finite length";
-
     R := ring M;
     N := prune M;
     n := numgens N;
@@ -138,17 +137,21 @@ compositionSeries(Module) := List => (M) -> (
     I := apply(Q,getRelations);
     -- Question for Mike: this is repeat (from isFiniteLength) again which I feel like I should avoid.
     -- should I make another function that does this routine and output the things I need?
+    -- Or just get rid of isFiniteLength?
     V := for i from 0 to n-1 list matrix apply(entries N_i, x -> {x});
     f := for i from 0 to n-1 list map(N,R^1,V_i);
-    g := for i from 0 to n-1 list inducedMap(image f_i,R^1,f_i);
-    if not apply(g,image) == L then error "unexpected";
+    -- f_i is the R-modue homomorphism given by 1 |-> N_i.
+    -- L_i is the image of f_i by definition.
+    -- Kernel of f_i is annihilator of element N_i.
+    g := for i from 0 to n-1 list inducedMap(L_i,R^1,f_i);
+    -- g_i is just f_i but with target restricted to the image of f_i,
+    -- so it can be composed with h_i defined next.
     h := for i from 0 to n-1 list inducedMap(K_i,L_i);
     C := apply(I,compositionSeries);
     inc := for i from 0 to n-1 list apply(C_i, J -> inducedMap(R^1,module J));
     im := for i from 0 to n-1 list apply(inc_i, iota -> image(h_i * g_i * iota));
     output := prepend(im_0,for i from 1 to n-1 list(apply(im_i, Rmod -> Rmod + K_(i-1))));
-    return flatten output
-    -- use pruning map to get a chain for M instead of N
+    apply(flatten output, Nsubmod -> image inducedMap(M,Nsubmod,N.cache.pruningMap))
 )
 
 
@@ -272,51 +275,6 @@ viewHelp "CompositionSeries"
 restart
 
 
---outlien for finitely generated module
-compositionSeries = method()
-compositionSeries(Module) := List => (M) -> (
-    -- let x_1..x_n be the generators of M
-        -- define the module M first, then 
-        C := res M;
-        L := dd^C_1;
-        entries L;
-    -- first have a chain of submodules given by 
-    -- 0 \subset (x_1) \subset (x_1,x_2) \subset ... \subset (x_1,...,x_n) = M
-    -- then for each i, the quotient (x_1,...,x_i)/(x_1,...,x_{i-1}) 
-    -- is isomorphic to R/{r in R | rx_i in (x_1,...,x_{i-1})}
-    -- check each quotient is of finite length.
-
-    -- need characterization of the ideal {r in R | rx_i in (x_1,...,x_{i-1})}
-    -- need to find a way to compute the composition series for 
-    -- R/ideal, i.e., a chain of ideals from an given ideal up to R
-    -- R \supset I_1 \supset I_2 \supset ... \supset I_n = I
-    -- such that each I_i/I_{i+1} is simple.
-
-    -- after having this, then the composition series for M should be 
-    -- (say (x_1) = R/I and (x_1,x_2)/(x_1) = R/J)
-    -- 0 \subset R/I_1 \subset R/I_2 \subset ... \subset R/I_n = R/I = (x_1)
-    -- \subset (lift of R/J_1*((x_1,x_2)/(x_1)) to (x_1,x_2))...
-)
-
-getRelations = method()
-getRelations(Module) := (M) -> (
-    N := prune M;
-    if not numgens N == 1 then error "Expect cyclic module";
-    if N == (ring M)^1 then return ideal(0_(ring M));
-    return ideal flatten entries relations(N);
-)
-
-
-R = ZZ/101[x,y,z]
-M = cokernel matrix{{1,1,1},{x,y,z},{x^2,y^2,z^2},{x^3,y^3,z^3},{x^4,y^4,z^4},{x^5,y^5,z^5}}
-M = cokernel matrix{{x,y,z,0,0,0,0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0},
-                    {0,0,0,x,y,z,0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0},
-                    {0,0,0,0,0,0,x^2,y^2,z^2,0,  0,  0,  0,  0,  0,  0,  0,  0},
-                    {0,0,0,0,0,0,0,  0,  0,  x^3,y^3,z^3,0,  0,  0,  0,  0,  0},
-                    {0,0,0,0,0,0,0,  0,  0,  0,  0,  0,  x^4,y^4,z^4,0,  0,  0},
-                    {0,0,0,0,0,0,0,  0,  0,  0,  0,  0,  0,  0,  0,  x^5,y^5,z^5}}
-n = numgens M
-
 
 
 -- Question for Mike:
@@ -328,27 +286,19 @@ ideal 1_R == ideal module R
 ideal 0_R == ideal module R
 
 
-R = QQ[x,y,z]
-I = ideal(y^4)
-J = ideal(y)
-compositionSeries(J/I)
-M = J/I
-
-
-
-
-
-
-
 
 
 
 
 -- compositionSeries example 
 R = ZZ/101[x,y,z]
+
+M = ideal(x,y,z)/ideal(x^2,y^2,z^2)
+M = cokernel matrix{{x,y,z}}
 M = cokernel matrix{{x,y,z,0,0,0,0,0,0},
                     {0,0,0,x^2,y^2,z^2,0,0,0},
                     {0,0,0,0,0,0,x^3,y^3,z^3}}
+
 N = prune M
 n = numgens N
 L = for i from 0 to n-1 list R*N_i
@@ -356,28 +306,15 @@ K = prepend(L_0,accumulate((x,y) -> x+y,L))
 Q = prepend(K_0,for i from 1 to #K-1 list K_i/K_(i-1))
 I = apply(Q,getRelations)
 V = for i from 0 to n-1 list matrix apply(entries N_i, x -> {x})
--- I want to define map from R^1 to Q_0,Q_1,...,Q_(n-1)
--- which sends 1 to the generator N_i of each Q_i 
--- V_i is the matrix for that
--- map(Q_0,R^1,V_0) does not work though, presumably because Q_0 is a subquotient
-map(Q_0,R^1,V_0)
-Q_0
-V_0
-
-map(Q_1,R^1,V_1)
-Q_1
-V_1
--- but the following works.
--- the image of f_i is by definition R*N_i = L_i
 f = for i from 0 to n-1 list map(N,R^1,V_i)
-g = for i from 0 to n-1 list inducedMap(image f_i,R^1,f_i)
+g = for i from 0 to n-1 list inducedMap(L_i,R^1,f_i)
 h = for i from 0 to n-1 list inducedMap(K_i,L_i)
-  apply(f,image) == L
-  apply(g,image) == L
 C = apply(I,compositionSeries)
 inc = for i from 0 to n-1 list apply(C_i, J -> inducedMap(R^1,module J))
 im = for i from 0 to n-1 list apply(inc_i, iota -> image(h_i * g_i * iota))
 output = prepend(im_0,for i from 1 to n-1 list(apply(im_i, Rmod -> Rmod + K_(i-1))))
+flatten output
+apply(flatten output, Nsubmod -> image inducedMap(M,Nsubmod,N.cache.pruningMap))
 
 netList oo
 #ooo
