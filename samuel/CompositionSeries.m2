@@ -15,7 +15,11 @@ export {"getRelations",
         "isSimple", 
         "isFiniteColength",
         "isFiniteLength",
-        "compositionSeries"}
+        "compositionSeries",
+        "filtration",
+        "filtrationPrimary",
+        "filtrationCoprimary",
+        "slowFiltration"}
 
 -* Code section *-
 
@@ -109,20 +113,20 @@ compositionSeriesPrimary(Ideal) := (I) -> (
 compositionSeries = method()
 compositionSeries(Ideal) := List => (I) -> (
     if not isFiniteColength(I) then error "Input is not an ideal of finite colength";
+    if I == ideal(1_(ring I)) then return {};
     L := associatedPrimes I;
     -- Question for Mike: since associatedPrimes is already done in isFiniteColength once,
     -- does that get cached and how does one check this?
     -- If not, how can we avoid recomputing it?
-    if I == ideal(1_(ring I)) then return {};
     if #L == 1 then return compositionSeriesPrimary(I);
 
     PD := primaryDecomposition I;
     L = apply(PD, J -> radical J);
-    -- this should be the same as L as a set, but does it change order?
-    -- if not this line can be omitted.
-
     M := for i from 1 to #PD-1 list intersect(PD_{i..#PD-1});
     M = append(M,ideal(1_(ring I)));
+    -- M_i is the intersection of everything in PD, except 
+    -- the first i+1 elements of PD is replaced with (Ring M).
+    -- TODO: use accumulate, but with list on the right?
     flatten(for i from 0 to #PD-1 list 
         apply(compositionSeriesPrimary(PD#i), J -> intersect(M_i, J)))
 )
@@ -154,7 +158,122 @@ compositionSeries(Module) := List => (M) -> (
     apply(flatten output, Nsubmod -> image inducedMap(M,Nsubmod,N.cache.pruningMap))
 )
 
+filtrationCoprimary = method()
+filtrationCoprimary(Module) := List => (M) -> (
+    -- input is a f.g. module M such that Ass(M)=Ann(M)={p} for some prime ideal p
+    -- M is necessarily a direct sum of R/p
+    -- output will be a filtration of M by submodules 
+    -- such that each successive quotient is isomorphic to R/p
+    -- (does not include zero, does include M itself)
+    R := ring M;
+    N := prune M;
+    n := numgens N;
+    if n == 1 then return {M};
+    L := for i from 0 to n-1 list R*N_i;
+    K := prepend(L_0,accumulate((x,y) -> x+y,L));
+    output := apply(K,Nsubmod -> image inducedMap(M,Nsubmod,N.cache.pruningMap))
+    -- This is not guaranteed to be a filtration we want.
+    -- It can be guaranteed that output#0 is isomorphic to R/p
+    -- but output#(i+1)/output#i might not be isomorphic to R/p,
+    -- it could be isomorphic to R/q for some other prime q which is fine for our purposes
+    -- (example in ExperimentalExplorations.m2).
+    -- However, it might even be isomorphic to R module some non prime ideal, 
+    -- although I do not have an example.
 
+    -- using slowFiltration solves the issue, as it will only trust 
+    -- the first output of filtrationCoprimary.
+    -- However, slowFiltration is slow because each 
+    -- step involves a primary decomposition which is computationally expensive.
+
+    -- The goal is to figure out a way to make the current filtrationCoprimary work.
+    -- If this cannot be acheived, one can try to optimize the slowFiltration 
+    -- method and try using fewer primary decompositions.
+)
+filtrationCoprimary(Ideal,Ideal) := List => (I,J) -> (
+    -- input is two ideals I,J with I contained in J
+    -- such that both are p primary for the same prime ideal p
+    -- then J/I is a direct sum of copies of R/p 
+    -- output will be a Filtration starting from I and ending at J
+    -- such that each successive quotient is isomorphic to R/p
+    -- (does not include I, does include J)
+    apply(filtrationCoprimary(J/I),
+        subquot -> trim(ideal flatten entries gens subquot + 
+                        ideal flatten entries relations subquot))
+)
+
+filtrationPrimary = method()
+filtrationPrimary(Ideal) := List => (I) -> (
+    p := radical I;
+    x := p_*;
+    output := {I};
+    while not I == p do (
+        J := fold(for i from 0 to #x-1 list I:x_i,intersect);
+        -- J have the amazing property that it is primary, 
+        -- annihilator(J/I) = p, and associatedPrimes(J/I) = {p}.
+        output = join(output,filtrationCoprimary(I,J));
+        I = J;
+    );
+    return output
+)
+
+filtration = method()
+filtration(Ideal) := List => (I) -> (
+    if I == ideal(1_(ring I)) then return {};
+    L := associatedPrimes I;
+    if #L == 1 then return filtrationPrimary(I);
+    PD := primaryDecomposition I;
+    M := for i from 1 to #PD-1 list intersect(PD_{i..#PD-1});
+    M = append(M,ideal(1_(ring I)));
+    -- M_i is the intersection of everything in PD, except 
+    -- the first i+1 elements of PD is replaced with (Ring M).
+    -- TODO: use accumulate, but with list on the right?
+    Chain := flatten(for i from 0 to #PD-1 list 
+        apply(filtrationPrimary(PD#i), J -> intersect(M_i, J)));
+    Output := {I};
+    while not #Chain == 0 do (
+        if Chain#0 == Output#-1 then Chain = drop(Chain,1);
+        Output = join(Output,filtrationCoprimary(Output#-1,Chain#0));
+        Chain = drop(Chain,1);
+    );
+    n := #Output;
+    Q := for i from 1 to n-1 list Output#i/Output#(i-1);
+    if not all(apply(Q, M -> numgens prune M == 1)) then 
+        error "Not all successive quotients are cyclic, use slowFiltration instead";
+    return Output
+)
+
+slowFiltration = method()
+slowFiltration(Module) := List => (M) -> (
+    if M == 0 then return {};
+    R := ring M;
+    if numgens prune M == 1 and associatedPrimes(M) == {annihilator M} then return {0_M};
+    P := prune M;
+    N := R*P_0;
+    I := annihilator(N);
+    -- there is an isomorphism between R/I and N
+    f := map(P,R^1,matrix entries gens N);
+    PD := primaryDecomposition(I);
+    q := PD#0;
+    p := radical q;
+    Q := (q:p);
+    J := if #PD == 1 then Q else intersect(Q,fold(drop(PD,1),intersect));
+    L := filtrationCoprimary(I,J);
+    K := L#0;
+    inc := inducedMap(R^1,module K);
+    S := trim image(P.cache.pruningMap * f * inc);
+    proj := inducedMap(M/S,M);
+    output := {0_M,S};
+    return join(output,apply(drop(slowFiltration(trim(M/S)),1),submod -> trim preimage(proj,submod)))
+)
+slowFiltration(Ideal,Ideal) := List => (I,J) -> (
+    if not ring I === ring J then error "Ideals must be in the same ring";
+    if not isSubset(I,J) then error "I must be a subset of J";
+    apply(slowFiltration(J/I), subquot -> if subquot == 0 then trim I 
+        else trim((ideal flatten entries gens subquot) + I))
+)
+slowFiltration(Ideal) := List => (I) -> (
+    slowFiltration(I,ideal(1_(ring I)))
+)
 
 -* Documentation section *-
 beginDocumentation()
@@ -263,6 +382,7 @@ end--
 
 -* Development section *-
 restart
+needsPackage "CompositionSeries"
 debug needsPackage "CompositionSeries"
 check "CompositionSeries"
 
@@ -274,24 +394,19 @@ viewHelp "CompositionSeries"
 
 restart
 
-
-
-
--- Question for Mike:
--- what's going on with these?
-R = ZZ/101[x,y,z]
-ideal 1_R == ideal R
-ideal 0_R == ideal R
-ideal 1_R == ideal module R
-ideal 0_R == ideal module R
-
-
-
+L = filtration I
+Q = for i from 1 to #L-1 list (trim L#i/L#(i-1))
+apply(Q,annihilator)
+apply(Q,M -> numgens prune M)
+apply(oo,isPrime)
+apply(oo,isPrimary)
+netList oo
 
 
 
 -- compositionSeries example 
 R = ZZ/101[x,y,z]
+
 
 M = ideal(x,y,z)/ideal(x^2,y^2,z^2)
 M = cokernel matrix{{x,y,z}}
@@ -307,12 +422,16 @@ Q = prepend(K_0,for i from 1 to #K-1 list K_i/K_(i-1))
 I = apply(Q,getRelations)
 V = for i from 0 to n-1 list matrix apply(entries N_i, x -> {x})
 f = for i from 0 to n-1 list map(N,R^1,V_i)
+
+f = for i from 0 to n-1 list N_{i}
+g = for i from 0 to n-1 list inducedMap(L_i,source f_i,f_i)
+
 g = for i from 0 to n-1 list inducedMap(L_i,R^1,f_i)
 h = for i from 0 to n-1 list inducedMap(K_i,L_i)
 C = apply(I,compositionSeries)
 inc = for i from 0 to n-1 list apply(C_i, J -> inducedMap(R^1,module J))
-im = for i from 0 to n-1 list apply(inc_i, iota -> image(h_i * g_i * iota))
-output = prepend(im_0,for i from 1 to n-1 list(apply(im_i, Rmod -> Rmod + K_(i-1))))
+im = for i from 0 to n-1 list apply(inc_i, iota -> trim image(h_i * g_i * iota))
+output = prepend(im_0,for i from 1 to n-1 list(apply(im_i, Rmod -> trim(Rmod + K_(i-1)))))
 flatten output
 apply(flatten output, Nsubmod -> image inducedMap(M,Nsubmod,N.cache.pruningMap))
 
@@ -364,3 +483,18 @@ compositionSeriesTest(Ideal,ZZ)...
 R = ZZ/101[x,y,z]
 compositionSeries(ideal(x^2*(x-1)^2,y^2,z^2))
 netList oo
+
+
+
+
+
+
+y^2 + x*z
+
+J = ideal(y^2 - x*z,z^3 - 2*y*z*w + x*w^2)
+L = filtration J
+Q = for i from 1 to #L-1 list (trim L#i/L#(i-1))
+apply(Q,annihilator)
+apply(Q,M -> numgens prune M)
+apply(oo,isPrime)
+apply(oo,isPrimary)

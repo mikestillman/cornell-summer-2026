@@ -259,7 +259,7 @@ time hilbertSamuelFunctionTest(module Nlocal,0,12)      -- about 1s depending on
 
 
 
-
+restart
 needsPackage "CompositionSeries"
 needsPackage "LocalRings"
 
@@ -283,3 +283,105 @@ isSubset(P,I:P)
 
 primaryDecomposition(I)
 oo/radical
+
+
+
+QR = R/I
+QP = sub(P,QR)
+M = module QP
+isFiniteLength(M)
+
+N = prune M
+n = numgens N
+L = for i from 0 to n-1 list QR*N_i
+K = prepend(L_0,accumulate((x,y) -> x+y,L))
+Q = prepend(K_0,for i from 1 to #K-1 list K_i/K_(i-1))
+listI = apply(Q,getRelations)
+
+isPrimary(listI_0)
+primaryDecomposition(listI_0)
+-- Question for Mike:
+-- I got true for isPrimary(listI_0)
+-- but the primary decomposition of listI_0 gives more than one component
+associatedPrimes(listI_0)
+isPrimary(listI_1)
+primaryDecomposition(listI_1)
+associatedPrimes(listI_1)
+
+
+R = ZZ/101[x,y,z,w]
+P = monomialCurveIdeal(R, {1,2,3})
+I = ideal(P_0^2,P_1^3,P_2)
+trim I
+Filt = filtration I
+Q = for i from 1 to #Filt-1 list (trim Filt#i/Filt#(i-1))
+apply(Q,annihilator)
+apply(Q,associatedPrimes)
+apply(Q,M -> numgens prune M)
+apply(oo,isPrime)
+apply(oo,isPrimary)
+netList oo
+
+PD = primaryDecomposition I
+apply(PD,radical)
+J = PD#0
+isPrimary J
+(radical J)/J
+associatedPrimes((radical J)/J)
+J:(radical J)_0
+J:(radical J)_1
+Lis = prepend(J,filtrationDirectSum(J,radical J))
+annihilator(Lis#1/Lis#0)
+
+
+FJ = filtration J
+-- This is a situation where 
+-- filtrationCoprimary cannot produce the ideal filtration.
+FJ_1/FJ_0
+FJ_2/FJ_1 -- nonzero
+FJ_2/FJ_0
+numgens prune (FJ_2/FJ_0)
+annihilator(FJ_1/FJ_0)
+annihilator(FJ_2/FJ_1)
+annihilator(FJ_2/FJ_0)
+associatedPrimes(FJ_1/FJ_0)
+associatedPrimes(FJ_2/FJ_1)
+associatedPrimes(FJ_2/FJ_0)
+
+-- When intersecting with PD_1 and PD_2,
+-- there are some more special behaviors:
+C0 = fold({FJ_0,PD_1,PD_2},intersect) -- same as I (or trim I)
+C1 = fold({FJ_1,PD_1,PD_2},intersect)
+C2 = fold({FJ_2,PD_1,PD_2},intersect)
+C1/C0
+C2/C1 -- zero 
+C2/C0
+annihilator(C1/C0)
+annihilator(C2/C1)
+associatedPrimes(C1/C0)
+associatedPrimes(C2/C1)
+numgens prune (FJ_1/FJ_0)
+numgens prune (FJ_2/FJ_1)
+numgens prune (C1/C0)
+numgens prune (C2/C1)
+FDC1 = filtrationDirectSum(C1/C0)
+FDC2 = filtrationDirectSum(C2/C1)
+annihilator FDC1#0
+annihilator FDC1#1
+
+L = slowFiltration(I,P)
+L = slowFiltration(P)
+
+elapsedTime(SFilt = slowFiltration(I))
+elapsedTime(Filt =filtration(I))
+Q = for i from 1 to #SFilt-1 list (trim SFilt#i/SFilt#(i-1))
+Q = for i from 1 to #Filt-1 list (trim Filt#i/Filt#(i-1))
+Q = for i from 1 to #L-1 list (trim L#i/L#(i-1))
+apply(Q,annihilator)
+apply(Q,associatedPrimes)
+flatten oo
+apply(Q,M -> numgens prune M)
+apply(oo,isPrime)
+apply(oo,isPrimary)
+netList oo
+
